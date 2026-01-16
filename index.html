@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小游戏合集 | cnfespop.github.io</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            color: #2c3e50;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, #3498db, #9b59b6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .game-card {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .game-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #34495e;
+        }
+
+        .game-card p {
+            color: #95a5a6;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .game-btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .game-btn:active {
+            transform: scale(0.95);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            color: #bdc3c7;
+            font-size: 1rem;
+            padding: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎮 趣味小游戏合集</h1>
+        <p>无需下载，直接游玩 | 适配电脑/手机</p>
+    </div>
+
+    <!-- 整合所有游戏到一个板块 -->
+    <h2 class="section-title">✨ 我的小游戏</h2>
+    <div class="game-container">
+        <!-- 贪吃蛇 -->
+        <div class="game-card">
+            <h3>贪吃蛇小游戏</h3>
+            <p>经典怀旧贪吃蛇，方向键/触控按钮控制，吃到食物加分，撞墙/撞自己游戏结束～</p>
+            <a href="snake.html" class="game-btn">开始游玩</a>
+        </div>
+
+        <!-- 俄罗斯方块（若你的文件名是elsfk.html，改href即可） -->
+        <div class="game-card">
+            <h3>俄罗斯方块小游戏</h3>
+            <p>经典俄罗斯方块，旋转、移动方块消行加分，方块堆到顶部则游戏结束～</p>
+            <a href="tetris.html" class="game-btn">开始游玩</a>
+        </div>
+
+        <!-- 2048 -->
+        <div class="game-card">
+            <h3>2048小游戏</h3>
+            <p>经典数字合成游戏，滑动/触控移动方块，合并相同数字，目标合成2048～</p>
+            <a href="2048.html" class="game-btn">开始游玩</a>
+        </div>
+
+        <!-- 扫雷 -->
+        <div class="game-card">
+            <h3>经典扫雷</h3>
+            <p>Windows经典扫雷复刻，点击格子避地雷，右键标记，考验逻辑和运气～</p>
+            <a href="minesweeper.html" class="game-btn">开始游玩</a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>zlqwerty123® | 趣味小游戏合集</p>
+    </div>
+</body>
+</html>
