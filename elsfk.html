@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>俄罗斯方块 | cnfespop.github.io</title>
+    <style>
+        /* 整体风格延续贪吃蛇的柔和设计 */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f8f9fa;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            padding-bottom: 100px;
+        }
+
+        /* 标题 - 渐变柔和风格 */
+        h1 {
+            color: #2c3e50;
+            margin: 20px 0;
+            font-size: 2.2rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(90deg, #9b59b6, #3498db);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* 游戏信息面板（分数、提示） */
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 360px;
+            margin-bottom: 15px;
+        }
+
+        .score, .hint {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #34495e;
+            padding: 8px 20px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* 游戏画布 - 圆角+柔和阴影 */
+        #gameCanvas {
+            border: none;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        /* 游戏结束提示 */
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #e74c3c;
+            display: none;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 25px 40px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* 触控按钮容器 */
+        .control-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+            gap: 10px;
+        }
+
+        /* 方向/功能按钮样式 */
+        .dir-btn, .func-btn {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .dir-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .func-btn {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .dir-btn:active, .func-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* 按钮布局 */
+        .top-func-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .middle-dir-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .restart-btn {
+            margin-top: 20px;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            color: white;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .restart-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <h1>俄罗斯方块小游戏</h1>
+    <div class="game-info">
+        <div class="score">分数: <span id="scoreNum">0</span></div>
+        <div class="hint">↑旋转 | ↓加速</div>
+    </div>
+    <canvas id="gameCanvas" width="360" height="400"></canvas>
+    <div class="game-over" id="gameOver">游戏结束啦 😢<br>分数: <span id="finalScore">0</span><br>点击按钮重新开始</div>
+
+    <!-- 触控按钮 -->
+    <div class="control-buttons">
+        <div class="top-func-btns">
+            <button class="func-btn" id="rotateBtn">↺</button>
+            <button class="func-btn" id="downFastBtn">↓↓</button>
+        </div>
+        <div class="middle-dir-btns">
+            <button class="dir-btn" id="leftBtn">←</button>
+            <button class="dir-btn" id="downBtn">↓</button>
+            <button class="dir-btn" id="rightBtn">→</button>
+        </div>
+        <button class="restart-btn" id="restartBtn">重新开始游戏</button>
+    </div>
+
+    <script>
+        // 获取画布和上下文
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreNum = document.getElementById('scoreNum');
+        const gameOver = document.getElementById('gameOver');
+        const finalScore = document.getElementById('finalScore');
+
+        // 触控按钮
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+        const downBtn = document.getElementById('downBtn');
+        const rotateBtn = document.getElementById('rotateBtn');
+        const downFastBtn = document.getElementById('downFastBtn');
+        const restartBtn = document.getElementById('restartBtn');
+
+        // 游戏配置
+        const blockSize = 20; // 每个方块的大小
+        const cols = 18; // 列数 (360/20)
+        const rows = 20; // 行数 (400/20)
+
+        // 游戏区域（二维数组，0=空，1-7=不同颜色的方块）
+        let gameBoard = Array(rows).fill().map(() => Array(cols).fill(0));
+
+        // 俄罗斯方块形状和颜色（7种经典形状）
+        const tetrominoes = [
+            // I
+            { shape: [[1,1,1,1]], color: '#3498db' },
+            // J
+            { shape: [[1,0,0],[1,1,1]], color: '#2980b9' },
+            // L
+            { shape: [[0,0,1],[1,1,1]], color: '#9b59b6' },
+            // O
+            { shape: [[1,1],[1,1]], color: '#f1c40f' },
+            // S
+            { shape: [[0,1,1],[1,1,0]], color: '#2ecc71' },
+            // T
+            { shape: [[0,1,0],[1,1,1]], color: '#e67e22' },
+            // Z
+            { shape: [[1,1,0],[0,1,1]], color: '#e74c3c' }
+        ];
+
+        // 当前方块状态
+        let currentTetromino = null;
+        let currentX = 0;
+        let currentY = 0;
+        let score = 0;
+        let gameRunning = true;
+
+        // 初始化游戏
+        function initGame() {
+            gameBoard = Array(rows).fill().map(() => Array(cols).fill(0));
+            score = 0;
+            scoreNum.textContent = score;
+            gameRunning = true;
+            gameOver.style.display = 'none';
+            spawnTetromino(); // 生成新方块
+            gameLoop(); // 启动游戏循环
+        }
+
+        // 生成随机方块
+        function spawnTetromino() {
+            const randomIndex = Math.floor(Math.random() * tetrominoes.length);
+            currentTetromino = tetrominoes[randomIndex];
+            // 初始位置（居中）
+            currentX = Math.floor(cols / 2) - Math.floor(currentTetromino.shape[0].length / 2);
+            currentY = 0;
+
+            // 检测游戏结束（新方块生成就碰撞）
+            if (checkCollision(currentTetromino.shape, currentX, currentY)) {
+                endGame();
+            }
+        }
+
+        // 碰撞检测
+        function checkCollision(shape, x, y) {
+            for (let row = 0; row < shape.length; row++) {
+                for (let col = 0; col < shape[row].length; col++) {
+                    if (shape[row][col]) {
+                        const newX = x + col;
+                        const newY = y + row;
+                        // 超出边界或已有方块
+                        if (newX < 0 || newX >= cols || newY >= rows || (newY >= 0 && gameBoard[newY][newX])) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // 固定方块到游戏区域
+        function lockTetromino() {
+            for (let row = 0; row < currentTetromino.shape.length; row++) {
+                for (let col = 0; col < currentTetromino.shape[row].length; col++) {
+                    if (currentTetromino.shape[row][col]) {
+                        const y = currentY + row;
+                        const x = currentX + col;
+                        if (y >= 0) {
+                            // 用颜色对应的数字标记（避免和0重复）
+                            gameBoard[y][x] = tetrominoes.findIndex(t => t.color === currentTetromino.color) + 1;
+                        }
+                    }
+                }
+            }
+            // 检查消行
+            clearLines();
+            // 生成新方块
+            spawnTetromino();
+        }
+
+        // 消行逻辑
+        function clearLines() {
+            let linesCleared = 0;
+            for (let row = rows - 1; row >= 0; row--) {
+                // 检查整行是否填满
+                if (gameBoard[row].every(cell => cell !== 0)) {
+                    linesCleared++;
+                    // 删除当前行，在顶部添加空行
+                    gameBoard.splice(row, 1);
+                    gameBoard.unshift(Array(cols).fill(0));
+                    // 行索引不变（因为删除后下一行变成当前行）
+                    row++;
+                }
+            }
+            // 加分（消行数越多分越高）
+            if (linesCleared > 0) {
+                score += linesCleared * 100;
+                scoreNum.textContent = score;
+            }
+        }
+
+        // 旋转方块
+        function rotateTetromino() {
+            // 旋转矩阵（转置+反转每行）
+            const rotatedShape = currentTetromino.shape[0].map((_, index) => 
+                currentTetromino.shape.map(row => row[index]).reverse()
+            );
+            // 检测旋转后是否碰撞，不碰撞则替换
+            if (!checkCollision(rotatedShape, currentX, currentY)) {
+                currentTetromino.shape = rotatedShape;
+            }
+        }
+
+        // 移动方块
+        function moveTetromino(dx, dy) {
+            if (!checkCollision(currentTetromino.shape, currentX + dx, currentY + dy)) {
+                currentX += dx;
+                currentY += dy;
+                return true;
+            }
+            // 向下移动碰撞则固定方块
+            if (dy > 0) {
+                lockTetromino();
+                return false;
+            }
+            return false;
+        }
+
+        // 快速下落
+        function dropTetromino() {
+            while (moveTetromino(0, 1)) {}
+        }
+
+        // 绘制游戏画面
+        function drawGame() {
+            // 清空画布
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制游戏区域的固定方块
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    if (gameBoard[row][col] !== 0) {
+                        // 根据数字找到对应颜色
+                        const color = tetrominoes[gameBoard[row][col] - 1].color;
+                        drawBlock(col * blockSize, row * blockSize, color);
+                    }
+                }
+            }
+
+            // 绘制当前移动的方块
+            if (currentTetromino) {
+                for (let row = 0; row < currentTetromino.shape.length; row++) {
+                    for (let col = 0; col < currentTetromino.shape[row].length; col++) {
+                        if (currentTetromino.shape[row][col]) {
+                            const x = (currentX + col) * blockSize;
+                            const y = (currentY + row) * blockSize;
+                            drawBlock(x, y, currentTetromino.color);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 绘制单个方块（圆角+边框）
+        function drawBlock(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.roundRect(x + 1, y + 1, blockSize - 2, blockSize - 2, 3);
+            ctx.fill();
+            // 加浅边框增强立体感
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        // 游戏结束
+        function endGame() {
+            gameRunning = false;
+            finalScore.textContent = score;
+            gameOver.style.display = 'block';
+        }
+
+        // 游戏主循环
+        let dropInterval = 1000; // 每秒下落一格
+        let lastDropTime = 0;
+        function gameLoop(timestamp = 0) {
+            if (!gameRunning) return;
+
+            // 控制下落速度
+            if (timestamp - lastDropTime > dropInterval) {
+                moveTetromino(0, 1);
+                lastDropTime = timestamp;
+            }
+
+            drawGame();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // 键盘控制
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            switch(e.key) {
+                case 'ArrowLeft': moveTetromino(-1, 0); break;
+                case 'ArrowRight': moveTetromino(1, 0); break;
+                case 'ArrowDown': moveTetromino(0, 1); break;
+                case 'ArrowUp': rotateTetromino(); break;
+                case ' ': dropTetromino(); break; // 空格键快速下落
+            }
+        });
+
+        // 触控按钮控制
+        leftBtn.addEventListener('click', () => gameRunning && moveTetromino(-1, 0));
+        rightBtn.addEventListener('click', () => gameRunning && moveTetromino(1, 0));
+        downBtn.addEventListener('click', () => gameRunning && moveTetromino(0, 1));
+        rotateBtn.addEventListener('click', () => gameRunning && rotateTetromino());
+        downFastBtn.addEventListener('click', () => gameRunning && dropTetromino());
+        restartBtn.addEventListener('click', initGame);
+
+        // 初始化游戏
+        initGame();
+    </script>
+</body>
+</html>
