@@ -86,6 +86,12 @@
             box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
             transition: transform 0.2s ease;
         }
+        
+        /* 针对工具类按钮的特殊样式（可选，区分颜色） */
+        .tool-btn {
+            background: linear-gradient(135deg, #6366f1, #4f46e5); /* 靛蓝色，对应 VocabHelper 主题 */
+            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
+        }
 
         .game-btn:active {
             transform: scale(0.95);
@@ -114,35 +120,39 @@
         <p>无需下载，直接游玩 | 适配电脑/手机</p>
     </div>
 
-    <!-- 整合所有游戏到一个板块 -->
     <h2 class="section-title">✨ 我的小游戏</h2>
     <div class="game-container">
-        <!-- 贪吃蛇 -->
         <div class="game-card">
             <h3>贪吃蛇小游戏</h3>
             <p>经典怀旧贪吃蛇，方向键/触控按钮控制，吃到食物加分，撞墙/撞自己游戏结束～</p>
             <a href="snake.html" class="game-btn">开始游玩</a>
         </div>
 
-        <!-- 俄罗斯方块（若你的文件名是elsfk.html，改href即可） -->
         <div class="game-card">
             <h3>俄罗斯方块小游戏</h3>
             <p>经典俄罗斯方块，旋转、移动方块消行加分，方块堆到顶部则游戏结束～</p>
             <a href="tetris.html" class="game-btn">开始游玩</a>
         </div>
 
-        <!-- 2048 -->
         <div class="game-card">
             <h3>2048小游戏</h3>
             <p>经典数字合成游戏，滑动/触控移动方块，合并相同数字，目标合成2048～</p>
             <a href="2048.html" class="game-btn">开始游玩</a>
         </div>
 
-        <!-- 扫雷 -->
         <div class="game-card">
             <h3>经典扫雷</h3>
             <p>Windows经典扫雷复刻，点击格子避地雷，右键标记，考验逻辑和运气～</p>
             <a href="minesweeper.html" class="game-btn">开始游玩</a>
+        </div>
+    </div>
+
+    <h2 class="section-title">📚 学习工具</h2>
+    <div class="game-container">
+        <div class="game-card">
+            <h3>VocabHelper</h3>
+            <p>极简高效的单词记忆助手，科学记忆曲线，无弹窗秒杀，助你轻松背单词～</p>
+            <a href="./vocabHelper.html" class="game-btn tool-btn">打开助手</a>
         </div>
     </div>
 
