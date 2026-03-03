@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VocabHelper</title>
+    <style>
+        :root { 
+            --primary: #6366f1; /* Indigo */
+            --success: #10b981; 
+            --warning: #f59e0b; 
+            --danger: #ef4444; 
+            --bg: #f8fafc; 
+            --text: #334155; 
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 20px; max-width: 600px; margin: 0 auto; min-height: 95vh; display: flex; flex-direction: column; }
+        
+        button { cursor: pointer; border: none; transition: 0.15s; font-weight: 600; font-family: inherit; }
+        button:active { transform: scale(0.97); opacity: 0.9; }
+        input, textarea { border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; width: 100%; box-sizing: border-box; font-family: monospace; outline: none; transition: border 0.2s; }
+        input:focus, textarea:focus { border-color: var(--primary); }
+
+        /* 品牌头 */
+        .app-header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
+        .app-title { font-size: 2rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; margin: 0; }
+        .app-desc { font-size: 0.9rem; color: #64748b; margin-top: 5px; }
+
+        /* 首页 */
+        #home-view { display: block; }
+        .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px; }
+        .stat-box { background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); text-align: center; }
+        .stat-num { font-size: 1.8rem; font-weight: 800; display: block; margin-bottom: 4px; }
+        .stat-txt { font-size: 0.75rem; color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .btn-main { width: 100%; padding: 22px; margin-bottom: 16px; border-radius: 16px; font-size: 1.1rem; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2); }
+        .btn-new { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        .btn-review { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.2); }
+        .btn-manage { background: #475569; padding: 16px; justify-content: center; box-shadow: none; font-size: 1rem; }
+
+        /* 学习页 */
+        #study-view { display: none; height: 100%; flex-direction: column; }
+        .flashcard { background: white; flex: 1; border-radius: 24px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); margin-bottom: 25px; position: relative; border: 1px solid #f1f5f9; }
+        
+        .progress-track { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: #f1f5f9; border-radius: 24px 24px 0 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* --- 视觉核心修改区 START --- */
+        .word-main { 
+            font-size: 2.8rem; 
+            font-weight: 800; 
+            color: #1e293b; /* 深色 */
+            margin-bottom: 15px; 
+            letter-spacing: -1px; 
+            line-height: 1.2;
+        }
+        
+        .def-main { 
+            display: none; /* 默认隐藏 */
+            width: 100%;
+            
+            /* 修改重点：放大字体，改变颜色 */
+            font-size: 2.2rem; /* 从1.4rem加大到2.2rem，接近单词大小 */
+            color: #4f46e5;    /* 使用醒目的靛蓝色，与单词的黑色区分 */
+            font-weight: 600;  /* 稍微加粗 */
+            
+            border-top: 2px dashed #e2e8f0; 
+            padding-top: 25px; 
+            margin-top: 20px; 
+            line-height: 1.4; 
+        }
+        /* --- 视觉核心修改区 END --- */
+        
+        .btn-reveal { width: 100%; padding: 20px; background: #1e293b; color: white; border-radius: 16px; font-size: 1.1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        
+        .action-grid { display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .act-btn { padding: 15px 5px; border-radius: 12px; color: white; font-size: 0.9rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .act-btn small { font-size: 0.7rem; opacity: 0.9; font-weight: normal; }
+
+        /* 管理页 */
+        #manage-view { display: none; }
+        .panel { background: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05); }
+        .panel h3 { margin-top: 0; font-size: 1rem; color: #0f172a; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        
+        .list-row { padding: 14px 0; border-bottom: 1px solid #f8fafc; display: flex; justify-content: space-between; align-items: center; }
+        .list-row:last-child { border-bottom: none; }
+        
+        .tag { font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; margin-left: 6px; vertical-align: middle; font-weight: bold; }
+        .t-master { background: #dcfce7; color: #166534; }
+        .t-learn { background: #fee2e2; color: #991b1b; }
+        .t-new { background: #e0f2fe; color: #075985; }
+
+        .btn-sm { padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; margin-left: 6px; color: white; }
+        .btn-grn { background: var(--success); }
+        .btn-yel { background: var(--warning); }
+        .btn-red { background: #cbd5e1; color: #333; }
+        .btn-red:hover { background: var(--danger); color: white; }
+
+        .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+        .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+        .file-btn { background: #f1f5f9; color: #475569; padding: 12px; border-radius: 10px; text-align: center; display: block; border: 2px dashed #cbd5e1; font-weight: bold; transition: 0.2s; }
+        .file-btn:hover { border-color: var(--primary); color: var(--primary); background: #e0e7ff; }
+    </style>
+</head>
+<body>
+
+<div id="home-view">
+    <div class="app-header">
+        <h1 class="app-title">VocabHelper</h1>
+        <div class="app-desc">极简 · 高效 · 单词记忆助手</div>
+    </div>
+
+    <div style="margin-bottom: 20px; text-align: right; display:flex; justify-content: flex-end; align-items: center; gap:10px;">
+        <span style="font-size: 0.85rem; color: #94a3b8; font-weight:bold;">每次学习数量</span>
+        <input type="number" id="batch-set" value="10" style="width: 60px; text-align: center; padding: 8px;" onchange="saveConfig()">
+    </div>
+
+    <div class="dashboard">
+        <div class="stat-box">
+            <span class="stat-num" id="s-new" style="color:var(--primary)">0</span>
+            <span class="stat-txt">待学新词</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-num" id="s-learn" style="color:var(--warning)">0</span>
+            <span class="stat-txt">复习队列</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-num" id="s-master" style="color:var(--success)">0</span>
+            <span class="stat-txt">完全掌握</span>
+        </div>
+    </div>
+
+    <button class="btn-main btn-new" onclick="startSession('new')">
+        <span>🚀 学习新词</span>
+        <small style="opacity:0.8">Start New</small>
+    </button>
+    <button class="btn-main btn-review" onclick="startSession('review')">
+        <span>↺ 开始复习</span>
+        <small style="opacity:0.8">Review</small>
+    </button>
+    <button class="btn-main btn-manage" onclick="nav('manage')">🛠 词库 / 数据备份</button>
+</div>
+
+<div id="study-view">
+    <div style="display:flex; justify-content:space-between; color:#94a3b8; margin-bottom:15px; font-weight:bold; font-size:0.9rem;">
+        <span onclick="nav('home')" style="cursor:pointer">✕ 结束</span>
+        <span>剩余: <b id="q-count" style="color:var(--text)">0</b></span>
+    </div>
+
+    <div class="flashcard">
+        <div class="progress-track"><div class="progress-fill" id="bar"></div></div>
+        <div style="position:absolute; top:20px; right:20px; color:#cbd5e1; font-size:0.8rem; font-weight:bold;">SCORE: <span id="score-val" style="color:var(--primary)">0</span>%</div>
+        
+        <div class="word-main" id="w-text">Loading...</div>
+        <div class="def-main" id="d-text">...</div>
+    </div>
+
+    <button id="reveal-btn" class="btn-reveal" onclick="showDef()">👀 查看释义</button>
+
+    <div id="ctrl-btns" class="action-grid">
+        <button class="act-btn" style="background:#ef4444" onclick="rate(-30)">❌ 忘了<small>-30</small></button>
+        <button class="act-btn" style="background:#f59e0b" onclick="rate(15)">🤔 模糊<small>+15</small></button>
+        <button class="act-btn" style="background:#6366f1" onclick="rate(35)">🧠 认识<small>+35</small></button>
+        <button class="act-btn" style="background:#10b981" onclick="setMaster()">✅ 秒杀<small>永久掌握</small></button>
+    </div>
+</div>
+
+<div id="manage-view">
+    <button onclick="nav('home')" style="margin-bottom:15px; background:#e2e8f0; color:#475569; padding:10px 15px; border-radius:10px;">← 返回首页</button>
+    
+    <div class="panel">
+        <h3>💾 数据备份与恢复</h3>
+        <div style="display:flex; gap:10px; margin-bottom:12px;">
+            <button onclick="copyToClipboard()" style="flex:1; background:#1e293b; color:white; padding:12px; border-radius:10px;">📋 复制到剪贴板</button>
+            <button onclick="exportJSON()" style="flex:1; background:#475569; color:white; padding:12px; border-radius:10px;">⬇️ 下载文件</button>
+        </div>
+        
+        <div class="file-upload-wrapper">
+            <span class="file-btn">📂 点击选择文件导入 (JSON)</span>
+            <input type="file" id="file-input" accept=".json" onchange="importFromFile(this)">
+        </div>
+        
+        <details style="margin-top:15px; color:#94a3b8; font-size:0.85rem;">
+            <summary>备用：粘贴代码导入</summary>
+            <textarea id="paste-area" style="margin-top:8px; height:60px; font-size:0.8rem;" placeholder='{"word":"test"}...'></textarea>
+            <button onclick="importFromText()" style="width:100%; background:#94a3b8; color:white; padding:8px; margin-top:5px; border-radius:8px;">确认粘贴恢复</button>
+        </details>
+    </div>
+
+    <div class="panel">
+        <h3>➕ 批量加词</h3>
+        <textarea id="add-area" placeholder="apple:苹果 (换行输入下一个)" style="height:100px;"></textarea>
+        <button onclick="addWords()" style="width:100%; background:var(--primary); color:white; padding:12px; margin-top:10px; border-radius:10px; font-size:1rem;">添加新词</button>
+    </div>
+
+    <div class="panel">
+        <h3>📚 词库列表 (<span id="total-count">0</span>)</h3>
+        <div id="list-box" style="max-height:500px; overflow-y:auto; padding-right:5px;"></div>
+    </div>
+</div>
+
+<script>
+    // --- 1. 数据层 ---
+    let db = JSON.parse(localStorage.getItem('vocab_helper_db') || localStorage.getItem('vocab_v11') || '[]');
+    let config = JSON.parse(localStorage.getItem('vocab_cfg')) || { batch: 10 };
+    
+    let queue = [];
+    let current = null;
+
+    document.getElementById('batch-set').value = config.batch;
+    updateUI();
+
+    // --- 2. 核心逻辑 ---
+
+    function saveConfig() {
+        config.batch = parseInt(document.getElementById('batch-set').value) || 10;
+        localStorage.setItem('vocab_cfg', JSON.stringify(config));
+    }
+
+    function saveDB() {
+        localStorage.setItem('vocab_helper_db', JSON.stringify(db));
+        updateUI();
+    }
+
+    function updateUI() {
+        document.getElementById('s-new').innerText = db.filter(x => x.status === 'new').length;
+        document.getElementById('s-learn').innerText = db.filter(x => x.status === 'learning').length;
+        document.getElementById('s-master').innerText = db.filter(x => x.status === 'mastered').length;
+        document.getElementById('total-count').innerText = db.length;
+    }
+
+    function startSession(mode) {
+        const limit = config.batch;
+
+        if (mode === 'new') {
+            const list = db.filter(x => x.status === 'new').slice(0, limit);
+            if(list.length === 0) return alert("太棒了！所有新词都学完了 (或请先添加)。");
+            list.forEach(w => { w.status = 'learning'; w.score = 0; });
+            queue = list;
+        } 
+        else if (mode === 'review') {
+            const list = db.filter(x => x.status === 'learning');
+            if(list.length === 0) return alert("没有需要复习的单词！");
+            list.forEach(w => {
+                w.score = Math.max(0, w.score - 20); 
+            });
+            list.sort((a,b) => a.score - b.score);
+            queue = list.slice(0, limit);
+        }
+
+        nav('study');
+        nextCard();
+    }
+
+    function nextCard() {
+        if (queue.length === 0) {
+            alert("🎉 本组学习完成！");
+            nav('home');
+            return;
+        }
+
+        current = queue[0];
+        document.getElementById('q-count').innerText = queue.length;
+        document.getElementById('w-text').innerText = current.word;
+        document.getElementById('d-text').innerText = current.def;
+        document.getElementById('score-val').innerText = current.score;
+        
+        const bar = document.getElementById('bar');
+        bar.style.width = current.score + "%";
+        if(current.score < 60) bar.style.background = '#ef4444';
+        else if(current.score < 90) bar.style.background = '#f59e0b';
+        else bar.style.background = '#10b981';
+
+        document.getElementById('d-text').style.display = 'none';
+        document.getElementById('reveal-btn').style.display = 'block';
+        document.getElementById('ctrl-btns').style.display = 'none';
+    }
+
+    function showDef() {
+        document.getElementById('d-text').style.display = 'block';
+        document.getElementById('reveal-btn').style.display = 'none';
+        document.getElementById('ctrl-btns').style.display = 'grid';
+    }
+
+    function rate(val) {
+        current.score = Math.min(100, Math.max(0, current.score + val));
+        if (current.score >= 100) {
+            queue.shift(); 
+        } else {
+            queue.push(queue.shift());
+        }
+        saveDB();
+        nextCard();
+    }
+
+    function setMaster() {
+        current.status = 'mastered';
+        current.score = 100;
+        queue.shift(); 
+        saveDB();
+        nextCard();
+    }
+
+    // --- 3. 工具与管理 ---
+
+    function copyToClipboard() {
+        const dataStr = JSON.stringify(db, null, 2);
+        const textArea = document.createElement("textarea");
+        textArea.value = dataStr;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            alert("✅ 复制成功！");
+        } catch (err) {
+            alert("❌ 复制失败，请尝试使用“下载文件”功能。");
+        }
+        document.body.removeChild(textArea);
+    }
+
+    function exportJSON() {
+        const str = JSON.stringify(db, null, 2);
+        const blob = new Blob([str], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `vocab_helper_backup_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+    }
+
+    function importFromFile(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const json = JSON.parse(e.target.result);
+                if (Array.isArray(json)) {
+                    if(confirm(`检测到 ${json.length} 个单词。\n确定覆盖当前词库吗？`)) {
+                        db = json; saveDB(); renderList(); alert("✅ 导入恢复成功！");
+                    }
+                }
+            } catch (err) { alert("文件格式错误"); }
+            input.value = '';
+        };
+        reader.readAsText(file);
+    }
+
+    function importFromText() {
+        try {
+            const json = JSON.parse(document.getElementById('paste-area').value);
+            if(Array.isArray(json)) {
+                db = json; saveDB(); renderList(); alert("✅ 导入成功！");
+            }
+        } catch(e) { alert("JSON 格式错误"); }
+    }
+
+    function addWords() {
+        const txt = document.getElementById('add-area').value;
+        const lines = txt.split('\n');
+        let count = 0;
+        lines.forEach(l => {
+            const p = l.split(/[:：]/);
+            if(p.length >= 2) {
+                const w = p[0].trim();
+                const d = p[1].trim();
+                if(w && !db.find(x => x.word === w)) {
+                    db.push({ word: w, def: d, status: 'new', score: 0 });
+                    count++;
+                }
+            }
+        });
+        document.getElementById('add-area').value = '';
+        saveDB();
+        renderList();
+        alert(count > 0 ? `成功添加 ${count} 个新词！` : "请检查格式");
+    }
+
+    function renderList() {
+        const box = document.getElementById('list-box');
+        box.innerHTML = '';
+        
+        db.forEach((item, i) => {
+            let tag = '', btn = '';
+            if(item.status === 'mastered') {
+                tag = `<span class="tag t-master">已掌握</span>`;
+                btn = `<button class="btn-sm btn-yel" onclick="toggleStatus(${i}, 'learning')">↺ 重置</button>`;
+            } else if (item.status === 'new') {
+                tag = `<span class="tag t-new">新词</span>`;
+                btn = `<button class="btn-sm btn-grn" onclick="toggleStatus(${i}, 'mastered')">✔ 掌握</button>`;
+            } else {
+                tag = `<span class="tag t-learn">熟练 ${item.score}%</span>`;
+                btn = `<button class="btn-sm btn-grn" onclick="toggleStatus(${i}, 'mastered')">✔ 掌握</button>`;
+            }
+
+            const row = document.createElement('div');
+            row.className = 'list-row';
+            row.innerHTML = `
+                <div style="flex:1">
+                    <div style="font-size:1rem; font-weight:bold; color:#1e293b;">${item.word} ${tag}</div>
+                    <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">${item.def}</div>
+                </div>
+                <div style="display:flex; align-items:center;">
+                    ${btn}
+                    <button class="btn-sm btn-red" onclick="delWord(${i})">✕</button>
+                </div>
+            `;
+            box.appendChild(row);
+        });
+    }
+
+    function toggleStatus(i, status) {
+        db[i].status = status;
+        if(status === 'mastered') db[i].score = 100;
+        if(status === 'learning') db[i].score = 0;
+        saveDB();
+        renderList();
+    }
+
+    function delWord(i) {
+        if(confirm("确定删除？")) {
+            db.splice(i, 1);
+            saveDB();
+            renderList();
+        }
+    }
+
+    function nav(viewId) {
+        document.getElementById('home-view').style.display = 'none';
+        document.getElementById('study-view').style.display = 'none';
+        document.getElementById('manage-view').style.display = 'none';
+        
+        document.getElementById(viewId + '-view').style.display = viewId === 'study' ? 'flex' : 'block';
+        if(viewId === 'home') updateUI();
+        if(viewId === 'manage') renderList();
+    }
+</script>
+
+</body>
+</html>
