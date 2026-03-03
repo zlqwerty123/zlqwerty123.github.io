@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VocabHelper</title>
+    <title>VocabHelper · 随机插入 + 追加导入</title>
     <style>
         :root { 
             --primary: #6366f1; /* Indigo */
@@ -44,31 +44,26 @@
         .progress-track { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: #f1f5f9; border-radius: 24px 24px 0 0; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* --- 视觉核心修改区 START --- */
         .word-main { 
             font-size: 2.8rem; 
             font-weight: 800; 
-            color: #1e293b; /* 深色 */
+            color: #1e293b;
             margin-bottom: 15px; 
             letter-spacing: -1px; 
             line-height: 1.2;
         }
         
         .def-main { 
-            display: none; /* 默认隐藏 */
+            display: none;
             width: 100%;
-            
-            /* 修改重点：放大字体，改变颜色 */
-            font-size: 2.2rem; /* 从1.4rem加大到2.2rem，接近单词大小 */
-            color: #4f46e5;    /* 使用醒目的靛蓝色，与单词的黑色区分 */
-            font-weight: 600;  /* 稍微加粗 */
-            
+            font-size: 2.2rem;
+            color: #4f46e5;
+            font-weight: 600;
             border-top: 2px dashed #e2e8f0; 
             padding-top: 25px; 
             margin-top: 20px; 
             line-height: 1.4; 
         }
-        /* --- 视觉核心修改区 END --- */
         
         .btn-reveal { width: 100%; padding: 20px; background: #1e293b; color: white; border-radius: 16px; font-size: 1.1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         
@@ -95,10 +90,11 @@
         .btn-red { background: #cbd5e1; color: #333; }
         .btn-red:hover { background: var(--danger); color: white; }
 
-        .file-upload-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
-        .file-upload-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
-        .file-btn { background: #f1f5f9; color: #475569; padding: 12px; border-radius: 10px; text-align: center; display: block; border: 2px dashed #cbd5e1; font-weight: bold; transition: 0.2s; }
-        .file-btn:hover { border-color: var(--primary); color: var(--primary); background: #e0e7ff; }
+        /* 文件上传双按钮 */
+        .file-actions { display: flex; gap: 8px; margin-top: 8px; }
+        .file-actions button { flex: 1; background: #f1f5f9; color: #475569; padding: 10px; border-radius: 8px; font-weight: 600; border: 1px solid #cbd5e1; }
+        .file-actions button:hover { background: #e0e7ff; border-color: var(--primary); color: var(--primary); }
+        .hidden-input { display: none; }
     </style>
 </head>
 <body>
@@ -142,7 +138,7 @@
 
 <div id="study-view">
     <div style="display:flex; justify-content:space-between; color:#94a3b8; margin-bottom:15px; font-weight:bold; font-size:0.9rem;">
-        <span onclick="nav('home')" style="cursor:pointer">✕ 结束</span>
+        <span onclick="confirmExit()" style="cursor:pointer">✕ 结束</span>
         <span>剩余: <b id="q-count" style="color:var(--text)">0</b></span>
     </div>
 
@@ -174,15 +170,20 @@
             <button onclick="exportJSON()" style="flex:1; background:#475569; color:white; padding:12px; border-radius:10px;">⬇️ 下载文件</button>
         </div>
         
-        <div class="file-upload-wrapper">
-            <span class="file-btn">📂 点击选择文件导入 (JSON)</span>
-            <input type="file" id="file-input" accept=".json" onchange="importFromFile(this)">
+        <div style="margin-bottom:8px; font-size:0.9rem; color:#334155;">从文件导入：</div>
+        <div class="file-actions">
+            <button onclick="triggerFileImport('overwrite')">📂 覆盖导入</button>
+            <button onclick="triggerFileImport('append')">➕ 追加导入</button>
         </div>
-        
+        <input type="file" id="file-import" accept=".json" style="display: none;" onchange="handleFileSelect(event)">
+
         <details style="margin-top:15px; color:#94a3b8; font-size:0.85rem;">
             <summary>备用：粘贴代码导入</summary>
             <textarea id="paste-area" style="margin-top:8px; height:60px; font-size:0.8rem;" placeholder='{"word":"test"}...'></textarea>
-            <button onclick="importFromText()" style="width:100%; background:#94a3b8; color:white; padding:8px; margin-top:5px; border-radius:8px;">确认粘贴恢复</button>
+            <div style="display:flex; gap:8px; margin-top:5px;">
+                <button onclick="importFromText('overwrite')" style="flex:1; background:#94a3b8; color:white; padding:8px; border-radius:8px;">覆盖粘贴</button>
+                <button onclick="importFromText('append')" style="flex:1; background:#6366f1; color:white; padding:8px; border-radius:8px;">追加粘贴</button>
+            </div>
         </details>
     </div>
 
@@ -199,7 +200,7 @@
 </div>
 
 <script>
-    // --- 1. 数据层 ---
+    // --- 数据层 ---
     let db = JSON.parse(localStorage.getItem('vocab_helper_db') || localStorage.getItem('vocab_v11') || '[]');
     let config = JSON.parse(localStorage.getItem('vocab_cfg')) || { batch: 10 };
     
@@ -209,7 +210,16 @@
     document.getElementById('batch-set').value = config.batch;
     updateUI();
 
-    // --- 2. 核心逻辑 ---
+    // --- 工具函数 ---
+
+    // 随机打乱数组 (Fisher–Yates)
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
 
     function saveConfig() {
         config.batch = parseInt(document.getElementById('batch-set').value) || 10;
@@ -228,24 +238,34 @@
         document.getElementById('total-count').innerText = db.length;
     }
 
+    // --- 学习核心 (修改点: 随机插入代替固定队尾) ---
     function startSession(mode) {
         const limit = config.batch;
 
         if (mode === 'new') {
-            const list = db.filter(x => x.status === 'new').slice(0, limit);
+            let list = db.filter(x => x.status === 'new').slice(0, limit);
             if(list.length === 0) return alert("太棒了！所有新词都学完了 (或请先添加)。");
             list.forEach(w => { w.status = 'learning'; w.score = 0; });
             queue = list;
         } 
         else if (mode === 'review') {
-            const list = db.filter(x => x.status === 'learning');
-            if(list.length === 0) return alert("没有需要复习的单词！");
-            list.forEach(w => {
-                w.score = Math.max(0, w.score - 20); 
+            let allLearning = db.filter(x => x.status === 'learning');
+            if(allLearning.length === 0) return alert("没有需要复习的单词！");
+            
+            let candidates = [...allLearning];
+            candidates.sort((a,b) => a.score - b.score);
+            let selected = candidates.slice(0, limit);
+            
+            selected.forEach(w => {
+                w.score = Math.max(0, w.score - 20);
             });
-            list.sort((a,b) => a.score - b.score);
-            queue = list.slice(0, limit);
+            
+            selected.sort((a,b) => a.score - b.score);
+            queue = selected;
         }
+
+        // 随机打乱队列顺序
+        queue = shuffleArray(queue);
 
         nav('study');
         nextCard();
@@ -281,13 +301,34 @@
         document.getElementById('ctrl-btns').style.display = 'grid';
     }
 
+    // 修改后的 rate 函数：50% 概率随机插入，50% 概率放回队尾
     function rate(val) {
         current.score = Math.min(100, Math.max(0, current.score + val));
+
         if (current.score >= 100) {
-            queue.shift(); 
+            // 达到掌握分数，直接移出队列
+            queue.shift(); // 移除当前单词（队首）
         } else {
-            queue.push(queue.shift());
+            // 未掌握，需要重新插入队列
+            queue.shift(); // 先将当前单词从队首移除
+
+            // 决定插入方式
+            if (Math.random() < 0.5) {
+                // 50% 概率随机插入（避免插到队首，至少前面有一个单词）
+                let insertPos;
+                if (queue.length === 0) {
+                    insertPos = 0; // 队列为空，只能插到位置0
+                } else {
+                    // 生成 1 到 queue.length 之间的随机整数（包含两端）
+                    insertPos = Math.floor(Math.random() * queue.length) + 1;
+                }
+                queue.splice(insertPos, 0, current);
+            } else {
+                // 50% 概率插入队尾
+                queue.push(current);
+            }
         }
+
         saveDB();
         nextCard();
     }
@@ -300,7 +341,25 @@
         nextCard();
     }
 
-    // --- 3. 工具与管理 ---
+    // --- 退出确认弹窗 ---
+    function confirmExit() {
+        if (confirm("确定结束本次学习？当前进度已自动保存，下次可继续复习。")) {
+            nav('home');
+        }
+    }
+
+    // --- 导航 ---
+    function nav(viewId) {
+        document.getElementById('home-view').style.display = 'none';
+        document.getElementById('study-view').style.display = 'none';
+        document.getElementById('manage-view').style.display = 'none';
+        
+        document.getElementById(viewId + '-view').style.display = viewId === 'study' ? 'flex' : 'block';
+        if(viewId === 'home') updateUI();
+        if(viewId === 'manage') renderList();
+    }
+
+    // --- 备份与恢复 (覆盖/追加导入) ---
 
     function copyToClipboard() {
         const dataStr = JSON.stringify(db, null, 2);
@@ -327,33 +386,105 @@
         a.click();
     }
 
-    function importFromFile(input) {
-        const file = input.files[0];
+    let currentImportMode = 'overwrite';
+
+    function triggerFileImport(mode) {
+        currentImportMode = mode;
+        document.getElementById('file-import').click();
+    }
+
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
                 const json = JSON.parse(e.target.result);
                 if (Array.isArray(json)) {
-                    if(confirm(`检测到 ${json.length} 个单词。\n确定覆盖当前词库吗？`)) {
-                        db = json; saveDB(); renderList(); alert("✅ 导入恢复成功！");
+                    if (currentImportMode === 'overwrite') {
+                        if (confirm(`覆盖导入将替换整个词库 (当前 ${db.length} 个词)，确定吗？`)) {
+                            db = json;
+                            saveDB();
+                            renderList();
+                            alert("✅ 覆盖导入成功！");
+                        }
+                    } else { // append
+                        let added = 0;
+                        json.forEach(item => {
+                            if (item.word && item.def !== undefined) {
+                                const exists = db.some(ex => ex.word.toLowerCase() === item.word.trim().toLowerCase());
+                                if (!exists) {
+                                    db.push({
+                                        word: item.word.trim(),
+                                        def: item.def,
+                                        status: item.status || 'new',
+                                        score: item.score || 0
+                                    });
+                                    added++;
+                                }
+                            }
+                        });
+                        if (added > 0) {
+                            saveDB();
+                            renderList();
+                            alert(`✅ 追加完成，新增 ${added} 个单词。`);
+                        } else {
+                            alert("没有新单词可追加 (可能都已存在)");
+                        }
                     }
+                } else {
+                    alert("文件格式错误：根节点应为数组");
                 }
-            } catch (err) { alert("文件格式错误"); }
-            input.value = '';
+            } catch (err) {
+                alert("JSON 解析失败：" + err.message);
+            }
+            event.target.value = '';
         };
         reader.readAsText(file);
     }
 
-    function importFromText() {
+    function importFromText(mode) {
         try {
             const json = JSON.parse(document.getElementById('paste-area').value);
-            if(Array.isArray(json)) {
-                db = json; saveDB(); renderList(); alert("✅ 导入成功！");
+            if (!Array.isArray(json)) throw new Error("数据不是数组");
+            if (mode === 'overwrite') {
+                if (confirm(`覆盖粘贴将替换整个词库 (当前 ${db.length} 个词)，确定吗？`)) {
+                    db = json;
+                    saveDB();
+                    renderList();
+                    alert("✅ 覆盖粘贴成功！");
+                }
+            } else { // append
+                let added = 0;
+                json.forEach(item => {
+                    if (item.word && item.def !== undefined) {
+                        const exists = db.some(ex => ex.word.toLowerCase() === item.word.trim().toLowerCase());
+                        if (!exists) {
+                            db.push({
+                                word: item.word.trim(),
+                                def: item.def,
+                                status: item.status || 'new',
+                                score: item.score || 0
+                            });
+                            added++;
+                        }
+                    }
+                });
+                if (added > 0) {
+                    saveDB();
+                    renderList();
+                    alert(`✅ 追加粘贴成功，新增 ${added} 个单词。`);
+                } else {
+                    alert("没有新单词可追加 (可能都已存在)");
+                }
             }
-        } catch(e) { alert("JSON 格式错误"); }
+            document.getElementById('paste-area').value = '';
+        } catch(e) {
+            alert("JSON 格式错误：" + e.message);
+        }
     }
 
+    // --- 批量加词 ---
     function addWords() {
         const txt = document.getElementById('add-area').value;
         const lines = txt.split('\n');
@@ -363,7 +494,7 @@
             if(p.length >= 2) {
                 const w = p[0].trim();
                 const d = p[1].trim();
-                if(w && !db.find(x => x.word === w)) {
+                if(w && !db.find(x => x.word.toLowerCase() === w.toLowerCase())) {
                     db.push({ word: w, def: d, status: 'new', score: 0 });
                     count++;
                 }
@@ -372,9 +503,10 @@
         document.getElementById('add-area').value = '';
         saveDB();
         renderList();
-        alert(count > 0 ? `成功添加 ${count} 个新词！` : "请检查格式");
+        alert(count > 0 ? `成功添加 ${count} 个新词！` : "请检查格式 (每行 单词:释义)");
     }
 
+    // --- 词库列表渲染 ---
     function renderList() {
         const box = document.getElementById('list-box');
         box.innerHTML = '';
@@ -424,15 +556,8 @@
         }
     }
 
-    function nav(viewId) {
-        document.getElementById('home-view').style.display = 'none';
-        document.getElementById('study-view').style.display = 'none';
-        document.getElementById('manage-view').style.display = 'none';
-        
-        document.getElementById(viewId + '-view').style.display = viewId === 'study' ? 'flex' : 'block';
-        if(viewId === 'home') updateUI();
-        if(viewId === 'manage') renderList();
-    }
+    // 初始化渲染列表
+    renderList();
 </script>
 
 </body>
