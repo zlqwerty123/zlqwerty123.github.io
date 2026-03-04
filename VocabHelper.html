@@ -12,6 +12,7 @@
             --danger: #ef4444; 
             --bg: #f8fafc; 
             --text: #334155; 
+            --ignore: #94a3b8;
         }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 20px; max-width: 600px; margin: 0 auto; min-height: 95vh; display: flex; flex-direction: column; }
         
@@ -39,7 +40,7 @@
 
         /* 学习页 */
         #study-view { display: none; height: 100%; flex-direction: column; }
-        .flashcard { background: white; flex: 1; border-radius: 24px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); margin-bottom: 25px; position: relative; border: 1px solid #f1f5f9; }
+        .flashcard { background: white; flex: 1; border-radius: 24px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); margin-bottom: 15px; /* 减小底部间距 */ position: relative; border: 1px solid #f1f5f9; }
         
         .progress-track { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: #f1f5f9; border-radius: 24px 24px 0 0; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -65,11 +66,32 @@
             line-height: 1.4; 
         }
         
-        .btn-reveal { width: 100%; padding: 20px; background: #1e293b; color: white; border-radius: 16px; font-size: 1.1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .btn-reveal { width: 100%; padding: 20px; background: #1e293b; color: white; border-radius: 16px; font-size: 1.1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 0; }
         
-        .action-grid { display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .act-btn { padding: 15px 5px; border-radius: 12px; color: white; font-size: 0.9rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        /* 操作按钮区域改为flex换行布局 */
+        .action-grid { 
+            display: none; 
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 0;
+        }
+        .act-btn { 
+            flex: 1 1 calc(33.33% - 8px); /* 大约三列，换行后两列 */
+            min-width: 100px; /* 防止太窄 */
+            padding: 14px 4px; 
+            border-radius: 12px; 
+            color: white; 
+            font-size: 0.9rem; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 4px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
+        }
         .act-btn small { font-size: 0.7rem; opacity: 0.9; font-weight: normal; }
+        .btn-ignore-study { background: #94a3b8; }
+        .btn-ignore-study:hover { background: #64748b; }
 
         /* 管理页 */
         #manage-view { display: none; }
@@ -78,23 +100,32 @@
         
         .list-row { padding: 14px 0; border-bottom: 1px solid #f8fafc; display: flex; justify-content: space-between; align-items: center; }
         .list-row:last-child { border-bottom: none; }
+        .list-row.ignored { opacity: 0.5; background: #f1f5f9; }
         
         .tag { font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; margin-left: 6px; vertical-align: middle; font-weight: bold; }
         .t-master { background: #dcfce7; color: #166534; }
         .t-learn { background: #fee2e2; color: #991b1b; }
         .t-new { background: #e0f2fe; color: #075985; }
+        .t-count { background: #f1f5f9; color: #475569; }
+        .t-ignored { background: #cbd5e1; color: #334155; }
 
-        .btn-sm { padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; margin-left: 6px; color: white; }
+        .btn-sm { padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; margin-left: 5px; color: white; white-space: nowrap; }
         .btn-grn { background: var(--success); }
         .btn-yel { background: var(--warning); }
         .btn-red { background: #cbd5e1; color: #333; }
         .btn-red:hover { background: var(--danger); color: white; }
+        .btn-ignore { background: #94a3b8; color: white; }
+        .btn-ignore:hover { background: #64748b; }
+        .btn-recover { background: #6366f1; color: white; }
 
         /* 文件上传双按钮 */
         .file-actions { display: flex; gap: 8px; margin-top: 8px; }
         .file-actions button { flex: 1; background: #f1f5f9; color: #475569; padding: 10px; border-radius: 8px; font-weight: 600; border: 1px solid #cbd5e1; }
         .file-actions button:hover { background: #e0e7ff; border-color: var(--primary); color: var(--primary); }
         .hidden-input { display: none; }
+
+        .toggle-ignored { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .toggle-ignored label { font-size: 0.9rem; color: #475569; }
     </style>
 </head>
 <body>
@@ -117,7 +148,7 @@
         </div>
         <div class="stat-box">
             <span class="stat-num" id="s-learn" style="color:var(--warning)">0</span>
-            <span class="stat-txt">复习队列</span>
+            <span class="stat-txt">学习中</span>
         </div>
         <div class="stat-box">
             <span class="stat-num" id="s-master" style="color:var(--success)">0</span>
@@ -156,7 +187,8 @@
         <button class="act-btn" style="background:#ef4444" onclick="rate(-30)">❌ 忘了<small>-30</small></button>
         <button class="act-btn" style="background:#f59e0b" onclick="rate(15)">🤔 模糊<small>+15</small></button>
         <button class="act-btn" style="background:#6366f1" onclick="rate(35)">🧠 认识<small>+35</small></button>
-        <button class="act-btn" style="background:#10b981" onclick="setMaster()">✅ 秒杀<small>永久掌握</small></button>
+        <button class="act-btn" style="background:#10b981" onclick="setMaster()">✅ 秒杀<small>直达100</small></button>
+        <button class="act-btn btn-ignore-study" onclick="ignoreCurrent()">✂️ 斩掉<small>永久忽略</small></button>
     </div>
 </div>
 
@@ -194,25 +226,42 @@
     </div>
 
     <div class="panel">
-        <h3>📚 词库列表 (<span id="total-count">0</span>)</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="margin:0;">📚 词库列表 (<span id="total-count">0</span>)</h3>
+            <div class="toggle-ignored">
+                <label for="showIgnored">显示已斩单词</label>
+                <input type="checkbox" id="showIgnored" onchange="toggleShowIgnored()">
+            </div>
+        </div>
         <div id="list-box" style="max-height:500px; overflow-y:auto; padding-right:5px;"></div>
     </div>
 </div>
 
 <script>
-    // --- 数据层 ---
+    // --- 数据层 (增加 ignored 字段) ---
     let db = JSON.parse(localStorage.getItem('vocab_helper_db') || localStorage.getItem('vocab_v11') || '[]');
+    
+    // 迁移旧数据：确保每个单词有 reviewCount、ignored，并根据score设置status
+    db.forEach(w => {
+        if (w.reviewCount === undefined) w.reviewCount = 0;
+        if (w.ignored === undefined) w.ignored = false;
+        if (w.score === undefined) w.score = 0;
+        // 根据 score 修正 status
+        if (w.score === 0) w.status = 'new';
+        else if (w.score >= 100) w.status = 'mastered';
+        else w.status = 'learning';
+    });
+
     let config = JSON.parse(localStorage.getItem('vocab_cfg')) || { batch: 10 };
     
-    let queue = [];
+    let queue = [];      // 当前学习队列
     let current = null;
+    let showIgnored = false;  // 管理界面是否显示已斩单词
 
     document.getElementById('batch-set').value = config.batch;
     updateUI();
 
     // --- 工具函数 ---
-
-    // 随机打乱数组 (Fisher–Yates)
     function shuffleArray(arr) {
         for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -227,46 +276,69 @@
     }
 
     function saveDB() {
+        // 保存前确保 status 与 score 一致
+        db.forEach(w => {
+            if (w.score === 0) w.status = 'new';
+            else if (w.score >= 100) w.status = 'mastered';
+            else w.status = 'learning';
+        });
         localStorage.setItem('vocab_helper_db', JSON.stringify(db));
         updateUI();
     }
 
     function updateUI() {
-        document.getElementById('s-new').innerText = db.filter(x => x.status === 'new').length;
-        document.getElementById('s-learn').innerText = db.filter(x => x.status === 'learning').length;
-        document.getElementById('s-master').innerText = db.filter(x => x.status === 'mastered').length;
-        document.getElementById('total-count').innerText = db.length;
+        // 统计时排除 ignored 的单词
+        const activeWords = db.filter(w => !w.ignored);
+        const newCount = activeWords.filter(x => x.score === 0).length;
+        const learningCount = activeWords.filter(x => x.score > 0 && x.score < 100).length;
+        const masteredCount = activeWords.filter(x => x.score >= 100).length;
+        document.getElementById('s-new').innerText = newCount;
+        document.getElementById('s-learn').innerText = learningCount;
+        document.getElementById('s-master').innerText = masteredCount;
+        document.getElementById('total-count').innerText = activeWords.length;
     }
 
-    // --- 学习核心 (修改点: 随机插入代替固定队尾) ---
+    // --- 学习核心 (过滤 ignored) ---
     function startSession(mode) {
         const limit = config.batch;
 
         if (mode === 'new') {
-            let list = db.filter(x => x.status === 'new').slice(0, limit);
-            if(list.length === 0) return alert("太棒了！所有新词都学完了 (或请先添加)。");
-            list.forEach(w => { w.status = 'learning'; w.score = 0; });
-            queue = list;
+            let list = db.filter(x => !x.ignored && x.score === 0 && x.status === 'new').slice(0, limit);
+            if(list.length === 0) return alert("暂无新词 (熟练度0的单词)，请先添加。");
+            queue = list.slice(); // 引用
         } 
         else if (mode === 'review') {
-            let allLearning = db.filter(x => x.status === 'learning');
-            if(allLearning.length === 0) return alert("没有需要复习的单词！");
-            
-            let candidates = [...allLearning];
-            candidates.sort((a,b) => a.score - b.score);
+            // 复习池：所有未被忽略且熟练度 >0 的单词（学习中+完全掌握）
+            let candidates = db.filter(x => !x.ignored && x.score > 0);
+            if(candidates.length === 0) return alert("没有需要复习的单词！");
+
+            // 排序：先按熟练度是否已满 (未满优先)，再按复习次数升序，再按熟练度升序
+            candidates.sort((a, b) => {
+                if (a.score >= 100 && b.score < 100) return 1;
+                if (a.score < 100 && b.score >= 100) return -1;
+                if (a.reviewCount !== b.reviewCount) return a.reviewCount - b.reviewCount;
+                return a.score - b.score;
+            });
+
             let selected = candidates.slice(0, limit);
             
+            // 复习前将熟练度减20（模拟遗忘）
             selected.forEach(w => {
                 w.score = Math.max(0, w.score - 20);
             });
-            
-            selected.sort((a,b) => a.score - b.score);
+            saveDB(); // 立即保存分数调整
+
+            // 再次按相同规则排序
+            selected.sort((a, b) => {
+                if (a.score >= 100 && b.score < 100) return 1;
+                if (a.score < 100 && b.score >= 100) return -1;
+                if (a.reviewCount !== b.reviewCount) return a.reviewCount - b.reviewCount;
+                return a.score - b.score;
+            });
             queue = selected;
         }
 
-        // 随机打乱队列顺序
         queue = shuffleArray(queue);
-
         nav('study');
         nextCard();
     }
@@ -298,33 +370,25 @@
     function showDef() {
         document.getElementById('d-text').style.display = 'block';
         document.getElementById('reveal-btn').style.display = 'none';
-        document.getElementById('ctrl-btns').style.display = 'grid';
+        document.getElementById('ctrl-btns').style.display = 'flex'; // 改为flex
     }
 
-    // 修改后的 rate 函数：50% 概率随机插入，50% 概率放回队尾
     function rate(val) {
+        current.reviewCount = (current.reviewCount || 0) + 1;
         current.score = Math.min(100, Math.max(0, current.score + val));
 
-        if (current.score >= 100) {
-            // 达到掌握分数，直接移出队列
-            queue.shift(); // 移除当前单词（队首）
-        } else {
-            // 未掌握，需要重新插入队列
-            queue.shift(); // 先将当前单词从队首移除
+        if (current.score === 0) current.status = 'new';
+        else if (current.score >= 100) current.status = 'mastered';
+        else current.status = 'learning';
 
-            // 决定插入方式
+        if (current.status === 'mastered') {
+            queue.shift();
+        } else {
+            queue.shift();
             if (Math.random() < 0.5) {
-                // 50% 概率随机插入（避免插到队首，至少前面有一个单词）
-                let insertPos;
-                if (queue.length === 0) {
-                    insertPos = 0; // 队列为空，只能插到位置0
-                } else {
-                    // 生成 1 到 queue.length 之间的随机整数（包含两端）
-                    insertPos = Math.floor(Math.random() * queue.length) + 1;
-                }
+                let insertPos = queue.length === 0 ? 0 : Math.floor(Math.random() * queue.length) + 1;
                 queue.splice(insertPos, 0, current);
             } else {
-                // 50% 概率插入队尾
                 queue.push(current);
             }
         }
@@ -334,21 +398,31 @@
     }
 
     function setMaster() {
-        current.status = 'mastered';
+        current.reviewCount = (current.reviewCount || 0) + 1;
         current.score = 100;
-        queue.shift(); 
+        current.status = 'mastered';
+        queue.shift();
         saveDB();
         nextCard();
     }
 
-    // --- 退出确认弹窗 ---
+    // --- 学习中直接斩掉当前单词 ---
+    function ignoreCurrent() {
+        if (!current) return;
+        if (!confirm(`确定要斩掉单词“${current.word}”吗？之后将不再出现。`)) return;
+        
+        current.ignored = true;  // 标记忽略
+        queue.shift();           // 从队列移除
+        saveDB();
+        nextCard();              // 继续下一个
+    }
+
     function confirmExit() {
         if (confirm("确定结束本次学习？当前进度已自动保存，下次可继续复习。")) {
             nav('home');
         }
     }
 
-    // --- 导航 ---
     function nav(viewId) {
         document.getElementById('home-view').style.display = 'none';
         document.getElementById('study-view').style.display = 'none';
@@ -359,8 +433,26 @@
         if(viewId === 'manage') renderList();
     }
 
-    // --- 备份与恢复 (覆盖/追加导入) ---
+    // --- 显示/隐藏已斩单词 ---
+    function toggleShowIgnored() {
+        showIgnored = document.getElementById('showIgnored').checked;
+        renderList();
+    }
 
+    // --- 斩掉 / 恢复单词 (管理界面) ---
+    function ignoreWord(index) {
+        db[index].ignored = true;
+        saveDB();
+        renderList();
+    }
+
+    function recoverWord(index) {
+        db[index].ignored = false;
+        saveDB();
+        renderList();
+    }
+
+    // --- 备份与恢复 (增加 ignored 字段) ---
     function copyToClipboard() {
         const dataStr = JSON.stringify(db, null, 2);
         const textArea = document.createElement("textarea");
@@ -401,6 +493,15 @@
             try {
                 const json = JSON.parse(e.target.result);
                 if (Array.isArray(json)) {
+                    json.forEach(w => {
+                        if (w.reviewCount === undefined) w.reviewCount = 0;
+                        if (w.ignored === undefined) w.ignored = false;
+                        if (w.score === undefined) w.score = 0;
+                        if (w.score === 0) w.status = 'new';
+                        else if (w.score >= 100) w.status = 'mastered';
+                        else w.status = 'learning';
+                    });
+
                     if (currentImportMode === 'overwrite') {
                         if (confirm(`覆盖导入将替换整个词库 (当前 ${db.length} 个词)，确定吗？`)) {
                             db = json;
@@ -417,8 +518,10 @@
                                     db.push({
                                         word: item.word.trim(),
                                         def: item.def,
-                                        status: item.status || 'new',
-                                        score: item.score || 0
+                                        status: item.status,
+                                        score: item.score,
+                                        reviewCount: item.reviewCount,
+                                        ignored: item.ignored
                                     });
                                     added++;
                                 }
@@ -447,6 +550,15 @@
         try {
             const json = JSON.parse(document.getElementById('paste-area').value);
             if (!Array.isArray(json)) throw new Error("数据不是数组");
+            json.forEach(w => {
+                if (w.reviewCount === undefined) w.reviewCount = 0;
+                if (w.ignored === undefined) w.ignored = false;
+                if (w.score === undefined) w.score = 0;
+                if (w.score === 0) w.status = 'new';
+                else if (w.score >= 100) w.status = 'mastered';
+                else w.status = 'learning';
+            });
+
             if (mode === 'overwrite') {
                 if (confirm(`覆盖粘贴将替换整个词库 (当前 ${db.length} 个词)，确定吗？`)) {
                     db = json;
@@ -463,8 +575,10 @@
                             db.push({
                                 word: item.word.trim(),
                                 def: item.def,
-                                status: item.status || 'new',
-                                score: item.score || 0
+                                status: item.status,
+                                score: item.score,
+                                reviewCount: item.reviewCount,
+                                ignored: item.ignored
                             });
                             added++;
                         }
@@ -484,7 +598,7 @@
         }
     }
 
-    // --- 批量加词 ---
+    // --- 批量加词 (增加 ignored: false) ---
     function addWords() {
         const txt = document.getElementById('add-area').value;
         const lines = txt.split('\n');
@@ -495,7 +609,7 @@
                 const w = p[0].trim();
                 const d = p[1].trim();
                 if(w && !db.find(x => x.word.toLowerCase() === w.toLowerCase())) {
-                    db.push({ word: w, def: d, status: 'new', score: 0 });
+                    db.push({ word: w, def: d, status: 'new', score: 0, reviewCount: 0, ignored: false });
                     count++;
                 }
             }
@@ -506,44 +620,65 @@
         alert(count > 0 ? `成功添加 ${count} 个新词！` : "请检查格式 (每行 单词:释义)");
     }
 
-    // --- 词库列表渲染 ---
+    // --- 词库列表渲染 (根据 showIgnored 过滤) ---
     function renderList() {
         const box = document.getElementById('list-box');
         box.innerHTML = '';
         
-        db.forEach((item, i) => {
+        let wordsToShow = showIgnored ? db : db.filter(w => !w.ignored);
+        
+        wordsToShow.forEach((item) => {
+            const originalIndex = db.findIndex(w => w.word === item.word); // 用word作为唯一标识
+
             let tag = '', btn = '';
-            if(item.status === 'mastered') {
-                tag = `<span class="tag t-master">已掌握</span>`;
-                btn = `<button class="btn-sm btn-yel" onclick="toggleStatus(${i}, 'learning')">↺ 重置</button>`;
-            } else if (item.status === 'new') {
-                tag = `<span class="tag t-new">新词</span>`;
-                btn = `<button class="btn-sm btn-grn" onclick="toggleStatus(${i}, 'mastered')">✔ 掌握</button>`;
+            if (item.ignored) {
+                tag = `<span class="tag t-ignored">已斩</span>`;
+                btn = `<button class="btn-sm btn-recover" onclick="recoverWord(${originalIndex})">↺ 恢复</button>`;
             } else {
-                tag = `<span class="tag t-learn">熟练 ${item.score}%</span>`;
-                btn = `<button class="btn-sm btn-grn" onclick="toggleStatus(${i}, 'mastered')">✔ 掌握</button>`;
+                if(item.status === 'mastered') {
+                    tag = `<span class="tag t-master">已掌握</span>`;
+                    btn = `<button class="btn-sm btn-yel" onclick="toggleMastered(${originalIndex})">↺ 重置</button>`;
+                } else if (item.status === 'new') {
+                    tag = `<span class="tag t-new">新词</span>`;
+                    btn = `<button class="btn-sm btn-grn" onclick="setMasterFromList(${originalIndex})">✔ 掌握</button>`;
+                } else {
+                    tag = `<span class="tag t-learn">熟练 ${item.score}%</span>`;
+                    btn = `<button class="btn-sm btn-grn" onclick="setMasterFromList(${originalIndex})">✔ 掌握</button>`;
+                }
+                btn += `<button class="btn-sm btn-ignore" onclick="ignoreWord(${originalIndex})" style="margin-left:4px;">✂️ 斩掉</button>`;
             }
 
             const row = document.createElement('div');
-            row.className = 'list-row';
+            row.className = 'list-row' + (item.ignored ? ' ignored' : '');
             row.innerHTML = `
                 <div style="flex:1">
-                    <div style="font-size:1rem; font-weight:bold; color:#1e293b;">${item.word} ${tag}</div>
+                    <div style="font-size:1rem; font-weight:bold; color:#1e293b;">
+                        ${item.word} 
+                        ${tag}
+                        <span class="tag t-count">🔄 ${item.reviewCount || 0}次</span>
+                    </div>
                     <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">${item.def}</div>
                 </div>
-                <div style="display:flex; align-items:center;">
+                <div style="display:flex; align-items:center; flex-wrap: wrap; justify-content: flex-end;">
                     ${btn}
-                    <button class="btn-sm btn-red" onclick="delWord(${i})">✕</button>
+                    <button class="btn-sm btn-red" onclick="delWord(${originalIndex})" style="margin-left:4px;">✕</button>
                 </div>
             `;
             box.appendChild(row);
         });
     }
 
-    function toggleStatus(i, status) {
-        db[i].status = status;
-        if(status === 'mastered') db[i].score = 100;
-        if(status === 'learning') db[i].score = 0;
+    function setMasterFromList(i) {
+        db[i].score = 100;
+        db[i].status = 'mastered';
+        saveDB();
+        renderList();
+    }
+
+    function toggleMastered(i) {
+        db[i].score = 0;
+        db[i].status = 'new';
+        db[i].reviewCount = 0;
         saveDB();
         renderList();
     }
