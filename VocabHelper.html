@@ -5,79 +5,286 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VocabHelper</title>
     <style>
-        :root { 
-            --primary: #6366f1; /* Indigo */
-            --success: #10b981; 
-            --warning: #f59e0b; 
-            --danger: #ef4444; 
-            --bg: #f8fafc; 
-            --text: #334155; 
+        /* 浅色主题变量（默认） */
+        :root {
+            --primary: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
             --ignore: #94a3b8;
+            --bg: #f8fafc;
+            --text: #334155;
+            --card-bg: #ffffff;
+            --border-light: #cbd5e1;
+            --border-lighter: #f1f5f9;
+            --header-text: #64748b;
+            --stat-box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            --flashcard-shadow: 0 20px 25px -5px rgba(0,0,0,0.05);
+            --btn-main-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);
+            --btn-review-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.2);
+            --btn-reveal-bg: #1e293b;
+            --btn-reveal-text: white;
+            --progress-bg: #f1f5f9;
+            --tag-master-bg: #dcfce7;
+            --tag-master-text: #166534;
+            --tag-learn-bg: #fee2e2;
+            --tag-learn-text: #991b1b;
+            --tag-new-bg: #e0f2fe;
+            --tag-new-text: #075985;
+            --tag-count-bg: #f1f5f9;
+            --tag-count-text: #475569;
+            --tag-ignored-bg: #cbd5e1;
+            --tag-ignored-text: #334155;
+            --btn-sm-red-bg: #cbd5e1;
+            --btn-sm-red-text: #333;
+            --btn-sm-red-hover-bg: #ef4444;
+            --btn-sm-red-hover-text: white;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 20px; max-width: 600px; margin: 0 auto; min-height: 95vh; display: flex; flex-direction: column; }
+
+        /* 暗色主题变量 - 提升对比度 */
+        .dark-theme {
+            --bg: #1e293b;
+            --text: #e2e8f0;
+            --card-bg: #334155;
+            --border-light: #475569;
+            --border-lighter: #1e293b;
+            --header-text: #94a3b8;
+            --stat-box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+            --flashcard-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            --btn-main-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+            --btn-review-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.4);
+            --btn-reveal-bg: #0f172a;
+            --btn-reveal-text: #f1f5f9;
+            --progress-bg: #1e293b;
+            
+            /* 提升主色对比度（用于释义、进度条、统计数字等） */
+            --primary: #818cf8;          /* 更亮的紫色/蓝色 */
+            --success: #34d399;           /* 亮绿 */
+            --warning: #fbbf24;            /* 亮橙黄 */
+            --danger: #f87171;             /* 亮红 */
+            --ignore: #9ca3af;             /* 亮灰 */
+            
+            /* 标签背景色加深，文字提亮 */
+            --tag-master-bg: #14532d;
+            --tag-master-text: #bbf7d0;
+            --tag-learn-bg: #7f1d1d;
+            --tag-learn-text: #fecaca;
+            --tag-new-bg: #075985;
+            --tag-new-text: #bae6fd;
+            --tag-count-bg: #475569;
+            --tag-count-text: #f1f5f9;
+            --tag-ignored-bg: #64748b;
+            --tag-ignored-text: #f1f5f9;
+            
+            /* 按钮颜色适配暗色 */
+            --btn-sm-red-bg: #64748b;
+            --btn-sm-red-text: #f1f5f9;
+            --btn-sm-red-hover-bg: #ef4444;
+            --btn-sm-red-hover-text: white;
+        }
+
+        html, body { height: 100%; margin: 0; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            padding: 20px; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            min-height: 95vh; 
+            display: flex; 
+            flex-direction: column; 
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
         
         button { cursor: pointer; border: none; transition: 0.15s; font-weight: 600; font-family: inherit; }
         button:active { transform: scale(0.97); opacity: 0.9; }
-        input, textarea { border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; width: 100%; box-sizing: border-box; font-family: monospace; outline: none; transition: border 0.2s; }
+        input, textarea { 
+            border: 1px solid var(--border-light); 
+            border-radius: 10px; 
+            padding: 12px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            font-family: monospace; 
+            outline: none; 
+            transition: border 0.2s; 
+            background: var(--card-bg);
+            color: var(--text);
+        }
         input:focus, textarea:focus { border-color: var(--primary); }
 
         /* 品牌头 */
-        .app-header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
-        .app-title { font-size: 2rem; font-weight: 900; background: linear-gradient(135deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; margin: 0; }
-        .app-desc { font-size: 0.9rem; color: #64748b; margin-top: 5px; }
+        .app-header { 
+            text-align: center; 
+            margin-bottom: 25px; 
+            margin-top: 10px; 
+            position: relative; 
+        }
+        .app-title { 
+            font-size: 2rem; 
+            font-weight: 900; 
+            background: linear-gradient(135deg, #6366f1, #a855f7); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            letter-spacing: -1px; 
+            margin: 0; 
+        }
+        .app-desc { font-size: 0.9rem; color: var(--header-text); margin-top: 5px; }
+
+        /* 主题切换按钮 */
+        .theme-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: var(--text);
+            transition: 0.2s;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
 
         /* 首页 */
         #home-view { display: block; }
         .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px; }
-        .stat-box { background: white; padding: 15px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); text-align: center; }
+        .stat-box { 
+            background: var(--card-bg); 
+            padding: 15px; 
+            border-radius: 16px; 
+            box-shadow: var(--stat-box-shadow); 
+            text-align: center; 
+        }
         .stat-num { font-size: 1.8rem; font-weight: 800; display: block; margin-bottom: 4px; }
-        .stat-txt { font-size: 0.75rem; color: #94a3b8; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-txt { font-size: 0.75rem; color: var(--header-text); font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .btn-main { width: 100%; padding: 22px; margin-bottom: 16px; border-radius: 16px; font-size: 1.1rem; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2); }
+        .btn-main { 
+            width: 100%; 
+            padding: 22px; 
+            margin-bottom: 16px; 
+            border-radius: 16px; 
+            font-size: 1.1rem; 
+            color: white; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: var(--btn-main-shadow); 
+        }
         .btn-new { background: linear-gradient(135deg, #6366f1, #4f46e5); }
-        .btn-review { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.2); }
+        .btn-review { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: var(--btn-review-shadow); }
         .btn-manage { background: #475569; padding: 16px; justify-content: center; box-shadow: none; font-size: 1rem; }
 
-        /* 学习页 */
-        #study-view { display: none; height: 100%; flex-direction: column; }
-        .flashcard { background: white; flex: 1; border-radius: 24px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); margin-bottom: 15px; /* 减小底部间距 */ position: relative; border: 1px solid #f1f5f9; }
+        /* 学习页 - 改进固定布局 */
+        #study-view { 
+            display: none; 
+            flex: 1;                     
+            flex-direction: column; 
+            height: 100%;                 
+            min-height: 0;                
+        }
+        .flashcard { 
+            background: var(--card-bg); 
+            flex: 1;                      
+            border-radius: 24px; 
+            padding: 30px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+            box-shadow: var(--flashcard-shadow); 
+            margin-bottom: 15px; 
+            position: relative; 
+            border: 1px solid var(--border-lighter);
+            overflow-y: auto;              
+            min-height: 0;                 
+        }
         
-        .progress-track { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: #f1f5f9; border-radius: 24px 24px 0 0; overflow: hidden; }
+        .progress-track { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 8px; 
+            background: var(--progress-bg); 
+            border-radius: 24px 24px 0 0; 
+            overflow: hidden; 
+        }
         .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
         .word-main { 
             font-size: 2.8rem; 
             font-weight: 800; 
-            color: #1e293b;
+            color: var(--text);
             margin-bottom: 15px; 
             letter-spacing: -1px; 
             line-height: 1.2;
+            word-break: break-word;       
         }
         
+        /* 释义区域：默认隐藏，带有淡入缩放动画 */
         .def-main { 
-            display: none;
+            display: block;
             width: 100%;
             font-size: 2.2rem;
-            color: #4f46e5;
+            color: var(--primary);
             font-weight: 600;
-            border-top: 2px dashed #e2e8f0; 
-            padding-top: 25px; 
-            margin-top: 20px; 
-            line-height: 1.4; 
+            border-top: none;              
+            padding-top: 0;
+            margin-top: 0;
+            line-height: 1.4;
+            word-break: break-word;
+            
+            /* 动画相关：初始隐藏 */
+            max-height: 0;
+            opacity: 0;
+            transform: scale(0.9);
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.2s ease, transform 0.2s ease, padding 0.2s ease, margin 0.2s ease, border 0.2s ease;
+        }
+        .def-main.show {
+            max-height: 500px;              
+            opacity: 1;
+            transform: scale(1);
+            border-top: 2px dashed var(--border-light);
+            padding-top: 25px;
+            margin-top: 20px;
         }
         
-        .btn-reveal { width: 100%; padding: 20px; background: #1e293b; color: white; border-radius: 16px; font-size: 1.1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 0; }
+        .btn-reveal { 
+            width: 100%; 
+            padding: 20px; 
+            background: var(--btn-reveal-bg); 
+            color: var(--btn-reveal-text); 
+            border-radius: 16px; 
+            font-size: 1.1rem; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
+            margin-bottom: 0; 
+            flex-shrink: 0;                
+        }
         
-        /* 操作按钮区域改为flex换行布局 */
+        /* 操作按钮区域：flex换行布局，固定在底部 */
         .action-grid { 
             display: none; 
             flex-wrap: wrap;
             gap: 8px;
             margin-top: 0;
+            flex-shrink: 0;                
         }
         .act-btn { 
-            flex: 1 1 calc(33.33% - 8px); /* 大约三列，换行后两列 */
-            min-width: 100px; /* 防止太窄 */
+            flex: 1 1 calc(33.33% - 8px); 
+            min-width: 100px; 
             padding: 14px 4px; 
             border-radius: 12px; 
             color: white; 
@@ -90,42 +297,86 @@
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
         }
         .act-btn small { font-size: 0.7rem; opacity: 0.9; font-weight: normal; }
-        .btn-ignore-study { background: #94a3b8; }
+        .btn-ignore-study { background: var(--ignore); }
         .btn-ignore-study:hover { background: #64748b; }
 
         /* 管理页 */
         #manage-view { display: none; }
-        .panel { background: white; padding: 20px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05); }
-        .panel h3 { margin-top: 0; font-size: 1rem; color: #0f172a; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .panel { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 16px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05); 
+            border: 1px solid var(--border-lighter);
+        }
+        .panel h3 { 
+            margin-top: 0; 
+            font-size: 1rem; 
+            color: var(--text); 
+            border-bottom: 1px solid var(--border-lighter); 
+            padding-bottom: 12px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
         
-        .list-row { padding: 14px 0; border-bottom: 1px solid #f8fafc; display: flex; justify-content: space-between; align-items: center; }
+        .list-row { 
+            padding: 14px 0; 
+            border-bottom: 1px solid var(--border-lighter); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
         .list-row:last-child { border-bottom: none; }
-        .list-row.ignored { opacity: 0.5; background: #f1f5f9; }
+        .list-row.ignored { opacity: 0.5; background: var(--border-lighter); }
         
         .tag { font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; margin-left: 6px; vertical-align: middle; font-weight: bold; }
-        .t-master { background: #dcfce7; color: #166534; }
-        .t-learn { background: #fee2e2; color: #991b1b; }
-        .t-new { background: #e0f2fe; color: #075985; }
-        .t-count { background: #f1f5f9; color: #475569; }
-        .t-ignored { background: #cbd5e1; color: #334155; }
+        .t-master { background: var(--tag-master-bg); color: var(--tag-master-text); }
+        .t-learn { background: var(--tag-learn-bg); color: var(--tag-learn-text); }
+        .t-new { background: var(--tag-new-bg); color: var(--tag-new-text); }
+        .t-count { background: var(--tag-count-bg); color: var(--tag-count-text); }
+        .t-ignored { background: var(--tag-ignored-bg); color: var(--tag-ignored-text); }
 
-        .btn-sm { padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; margin-left: 5px; color: white; white-space: nowrap; }
+        .btn-sm { 
+            padding: 6px 10px; 
+            border-radius: 8px; 
+            font-size: 0.75rem; 
+            margin-left: 5px; 
+            color: white; 
+            white-space: nowrap; 
+        }
         .btn-grn { background: var(--success); }
         .btn-yel { background: var(--warning); }
-        .btn-red { background: #cbd5e1; color: #333; }
-        .btn-red:hover { background: var(--danger); color: white; }
-        .btn-ignore { background: #94a3b8; color: white; }
+        .btn-red { 
+            background: var(--btn-sm-red-bg); 
+            color: var(--btn-sm-red-text); 
+        }
+        .btn-red:hover { 
+            background: var(--btn-sm-red-hover-bg); 
+            color: var(--btn-sm-red-hover-text); 
+        }
+        .btn-ignore { background: var(--ignore); color: white; }
         .btn-ignore:hover { background: #64748b; }
-        .btn-recover { background: #6366f1; color: white; }
+        .btn-recover { background: var(--primary); color: white; }
 
         /* 文件上传双按钮 */
         .file-actions { display: flex; gap: 8px; margin-top: 8px; }
-        .file-actions button { flex: 1; background: #f1f5f9; color: #475569; padding: 10px; border-radius: 8px; font-weight: 600; border: 1px solid #cbd5e1; }
-        .file-actions button:hover { background: #e0e7ff; border-color: var(--primary); color: var(--primary); }
+        .file-actions button { 
+            flex: 1; 
+            background: var(--border-lighter); 
+            color: var(--text); 
+            padding: 10px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            border: 1px solid var(--border-light); 
+        }
+        .file-actions button:hover { background: var(--primary); border-color: var(--primary); color: white; }
         .hidden-input { display: none; }
 
         .toggle-ignored { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .toggle-ignored label { font-size: 0.9rem; color: #475569; }
+        .toggle-ignored label { font-size: 0.9rem; color: var(--header-text); }
     </style>
 </head>
 <body>
@@ -134,10 +385,11 @@
     <div class="app-header">
         <h1 class="app-title">VocabHelper</h1>
         <div class="app-desc">极简 · 高效 · 单词记忆助手</div>
+        <div class="theme-toggle" onclick="toggleTheme()" id="theme-toggle">🌙</div>
     </div>
 
     <div style="margin-bottom: 20px; text-align: right; display:flex; justify-content: flex-end; align-items: center; gap:10px;">
-        <span style="font-size: 0.85rem; color: #94a3b8; font-weight:bold;">每次学习数量</span>
+        <span style="font-size: 0.85rem; color: var(--header-text); font-weight:bold;">每次学习数量</span>
         <input type="number" id="batch-set" value="10" style="width: 60px; text-align: center; padding: 8px;" onchange="saveConfig()">
     </div>
 
@@ -168,17 +420,17 @@
 </div>
 
 <div id="study-view">
-    <div style="display:flex; justify-content:space-between; color:#94a3b8; margin-bottom:15px; font-weight:bold; font-size:0.9rem;">
+    <div style="display:flex; justify-content:space-between; color:var(--header-text); margin-bottom:15px; font-weight:bold; font-size:0.9rem;">
         <span onclick="confirmExit()" style="cursor:pointer">✕ 结束</span>
         <span>剩余: <b id="q-count" style="color:var(--text)">0</b></span>
     </div>
 
     <div class="flashcard">
         <div class="progress-track"><div class="progress-fill" id="bar"></div></div>
-        <div style="position:absolute; top:20px; right:20px; color:#cbd5e1; font-size:0.8rem; font-weight:bold;">SCORE: <span id="score-val" style="color:var(--primary)">0</span>%</div>
+        <div style="position:absolute; top:20px; right:20px; color:var(--header-text); font-size:0.8rem; font-weight:bold;">SCORE: <span id="score-val" style="color:var(--primary)">0</span>%</div>
         
         <div class="word-main" id="w-text">Loading...</div>
-        <div class="def-main" id="d-text">...</div>
+        <div class="def-main" id="d-text"></div>
     </div>
 
     <button id="reveal-btn" class="btn-reveal" onclick="showDef()">👀 查看释义</button>
@@ -193,7 +445,7 @@
 </div>
 
 <div id="manage-view">
-    <button onclick="nav('home')" style="margin-bottom:15px; background:#e2e8f0; color:#475569; padding:10px 15px; border-radius:10px;">← 返回首页</button>
+    <button onclick="nav('home')" style="margin-bottom:15px; background:var(--border-lighter); color:var(--text); padding:10px 15px; border-radius:10px;">← 返回首页</button>
     
     <div class="panel">
         <h3>💾 数据备份与恢复</h3>
@@ -202,14 +454,14 @@
             <button onclick="exportJSON()" style="flex:1; background:#475569; color:white; padding:12px; border-radius:10px;">⬇️ 下载文件</button>
         </div>
         
-        <div style="margin-bottom:8px; font-size:0.9rem; color:#334155;">从文件导入：</div>
+        <div style="margin-bottom:8px; font-size:0.9rem; color:var(--text);">从文件导入：</div>
         <div class="file-actions">
             <button onclick="triggerFileImport('overwrite')">📂 覆盖导入</button>
             <button onclick="triggerFileImport('append')">➕ 追加导入</button>
         </div>
         <input type="file" id="file-import" accept=".json" style="display: none;" onchange="handleFileSelect(event)">
 
-        <details style="margin-top:15px; color:#94a3b8; font-size:0.85rem;">
+        <details style="margin-top:15px; color:var(--header-text); font-size:0.85rem;">
             <summary>备用：粘贴代码导入</summary>
             <textarea id="paste-area" style="margin-top:8px; height:60px; font-size:0.8rem;" placeholder='{"word":"test"}...'></textarea>
             <div style="display:flex; gap:8px; margin-top:5px;">
@@ -260,6 +512,29 @@
 
     document.getElementById('batch-set').value = config.batch;
     updateUI();
+
+    // --- 主题切换 ---
+    function toggleTheme() {
+        const body = document.body;
+        const toggle = document.getElementById('theme-toggle');
+        body.classList.toggle('dark-theme');
+        const isDark = body.classList.contains('dark-theme');
+        toggle.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('vocab_theme', isDark ? 'dark' : 'light');
+    }
+
+    // 初始化主题
+    (function initTheme() {
+        const savedTheme = localStorage.getItem('vocab_theme');
+        const body = document.body;
+        const toggle = document.getElementById('theme-toggle');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-theme');
+            toggle.textContent = '☀️';
+        } else {
+            toggle.textContent = '🌙';
+        }
+    })();
 
     // --- 工具函数 ---
     function shuffleArray(arr) {
@@ -353,7 +628,8 @@
         current = queue[0];
         document.getElementById('q-count').innerText = queue.length;
         document.getElementById('w-text').innerText = current.word;
-        document.getElementById('d-text').innerText = current.def;
+        // 不设置释义内容，避免切换时闪现
+        document.getElementById('d-text').innerText = ''; // 清空释义内容，确保不会显示旧内容
         document.getElementById('score-val').innerText = current.score;
         
         const bar = document.getElementById('bar');
@@ -362,15 +638,18 @@
         else if(current.score < 90) bar.style.background = '#f59e0b';
         else bar.style.background = '#10b981';
 
-        document.getElementById('d-text').style.display = 'none';
+        // 隐藏释义区域（移除show类）
+        document.getElementById('d-text').classList.remove('show');
         document.getElementById('reveal-btn').style.display = 'block';
         document.getElementById('ctrl-btns').style.display = 'none';
     }
 
     function showDef() {
-        document.getElementById('d-text').style.display = 'block';
+        // 先设置当前单词的释义，再显示
+        document.getElementById('d-text').innerText = current.def;
+        document.getElementById('d-text').classList.add('show');
         document.getElementById('reveal-btn').style.display = 'none';
-        document.getElementById('ctrl-btns').style.display = 'flex'; // 改为flex
+        document.getElementById('ctrl-btns').style.display = 'flex';
     }
 
     function rate(val) {
@@ -652,12 +931,12 @@
             row.className = 'list-row' + (item.ignored ? ' ignored' : '');
             row.innerHTML = `
                 <div style="flex:1">
-                    <div style="font-size:1rem; font-weight:bold; color:#1e293b;">
+                    <div style="font-size:1rem; font-weight:bold; color:var(--text);">
                         ${item.word} 
                         ${tag}
                         <span class="tag t-count">🔄 ${item.reviewCount || 0}次</span>
                     </div>
-                    <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">${item.def}</div>
+                    <div style="font-size:0.85rem; color:var(--header-text); margin-top:4px;">${item.def}</div>
                 </div>
                 <div style="display:flex; align-items:center; flex-wrap: wrap; justify-content: flex-end;">
                     ${btn}
