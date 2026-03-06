@@ -235,33 +235,40 @@
         .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
         .word-main { 
-            font-size: 2.8rem; 
+            font-size: clamp(1.5rem, 8vw, 2.8rem); /* 响应式字体 */
             font-weight: 800; 
             color: var(--text);
             margin-bottom: 15px; 
             letter-spacing: -1px; 
             line-height: 1.2;
-            word-break: break-word;       
+            overflow-x: auto;              /* 长单词可横向滚动 */
+            white-space: normal;            /* 短语正常换行 */
+            max-width: 100%;                /* 防止溢出父容器 */
+            -webkit-overflow-scrolling: touch; /* 流畅滚动 */
         }
         
         /* 释义区域：默认隐藏，带有淡入缩放动画 */
         .def-main { 
             display: block;
             width: 100%;
-            font-size: 2.2rem;
+            font-size: clamp(1.2rem, 7vw, 2.2rem);
             color: var(--primary);
             font-weight: 600;
             border-top: none;              
             padding-top: 0;
             margin-top: 0;
             line-height: 1.4;
-            word-break: break-word;
+            word-break: normal;
+            overflow-x: auto;               /* 长释义可横向滚动 */
+            white-space: normal;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch;
             
             /* 动画相关：初始隐藏 */
             max-height: 0;
             opacity: 0;
             transform: scale(0.9);
-            overflow: hidden;
+            overflow: hidden;                /* 动画时隐藏溢出，避免滚动条干扰 */
             transition: max-height 0.3s ease, opacity 0.2s ease, transform 0.2s ease, padding 0.2s ease, margin 0.2s ease, border 0.2s ease;
         }
         .def-main.show {
@@ -271,6 +278,7 @@
             border-top: 2px dashed var(--border-light);
             padding-top: 25px;
             margin-top: 20px;
+            overflow-x: auto;                /* 显示后恢复滚动 */
         }
         
         .btn-reveal { 
