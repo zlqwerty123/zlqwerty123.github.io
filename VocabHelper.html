@@ -39,7 +39,6 @@
             --btn-sm-red-text: #333;
             --btn-sm-red-hover-bg: #ef4444;
             --btn-sm-red-hover-text: white;
-            /* 管理页按钮浅色 */
             --manage-btn-bg: #e2e8f0;
             --manage-btn-text: #334155;
             --manage-btn-hover: #cbd5e1;
@@ -57,18 +56,16 @@
             --flashcard-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
             --btn-main-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
             --btn-review-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.4);
-            --btn-reveal-bg: #2d3a4f;          /* 提升与背景的对比度 */
+            --btn-reveal-bg: #2d3a4f;
             --btn-reveal-text: #ffffff;
             --progress-bg: #1e293b;
             
-            /* 提升主色对比度（用于释义、进度条、统计数字等） */
-            --primary: #a78bfa;                /* 更亮的淡紫色 */
-            --success: #4ade80;                 /* 亮绿 */
-            --warning: #fcd34d;                  /* 亮黄 */
-            --danger: #fca5a5;                   /* 亮红 */
-            --ignore: #9ca3af;                   /* 亮灰 */
+            --primary: #a78bfa;
+            --success: #4ade80;
+            --warning: #fcd34d;
+            --danger: #fca5a5;
+            --ignore: #9ca3af;
             
-            /* 标签背景色加深，文字提亮 */
             --tag-master-bg: #14532d;
             --tag-master-text: #bbf7d0;
             --tag-learn-bg: #7f1d1d;
@@ -80,13 +77,11 @@
             --tag-ignored-bg: #64748b;
             --tag-ignored-text: #f1f5f9;
             
-            /* 按钮颜色适配暗色 */
             --btn-sm-red-bg: #64748b;
             --btn-sm-red-text: #f1f5f9;
             --btn-sm-red-hover-bg: #ef4444;
             --btn-sm-red-hover-text: white;
             
-            /* 管理页按钮暗色 */
             --manage-btn-bg: #4b5565;
             --manage-btn-text: #f1f5f9;
             --manage-btn-hover: #6b7280;
@@ -95,14 +90,14 @@
         html, body { 
             height: 100%; 
             margin: 0; 
-            overflow: hidden; /* 防止整体滚动 */
+            overflow: hidden;
         }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: var(--bg); 
             color: var(--text); 
             padding: 20px; 
-            padding-bottom: calc(20px + env(safe-area-inset-bottom)); /* 为底部工具栏留出空间 */
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
             max-width: 600px; 
             margin: 0 auto; 
             height: 100%; 
@@ -128,7 +123,6 @@
         }
         input:focus, textarea:focus { border-color: var(--primary); }
 
-        /* 品牌头 */
         .app-header { 
             text-align: center; 
             margin-bottom: 25px; 
@@ -146,7 +140,6 @@
         }
         .app-desc { font-size: 0.9rem; color: var(--header-text); margin-top: 5px; }
 
-        /* 主题切换按钮 */
         .theme-toggle {
             position: absolute;
             top: 0;
@@ -170,13 +163,12 @@
             border-color: var(--primary);
         }
 
-        /* 首页 - 内部可滚动（如果需要） */
         #home-view { 
             display: block; 
             overflow-y: auto; 
             flex: 1; 
             min-height: 0; 
-            padding-right: 4px; /* 为滚动条留点空间 */
+            padding-right: 4px;
         }
         .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px; }
         .stat-box { 
@@ -205,13 +197,12 @@
         .btn-review { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: var(--btn-review-shadow); }
         .btn-manage { background: #475569; padding: 16px; justify-content: center; box-shadow: none; font-size: 1rem; }
 
-        /* 学习页 - 固定高度，内部滚动 */
         #study-view { 
             display: none; 
             flex: 1;                     
             flex-direction: column; 
-            min-height: 0;                /* 重要：允许flex子项收缩 */
-            overflow: hidden;              /* 防止整体滚动 */
+            min-height: 0;
+            overflow: hidden;
         }
         .flashcard { 
             background: var(--card-bg); 
@@ -227,7 +218,7 @@
             margin-bottom: 15px; 
             position: relative; 
             border: 1px solid var(--border-lighter);
-            overflow-y: auto;              /* 内容过多时可滚动，保证按钮不位移 */
+            overflow-y: auto;
             min-height: 0;                 
         }
         
@@ -244,23 +235,22 @@
         .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
         .word-main { 
-            font-size: clamp(2rem, 8vw, 3rem);  /* 增大最小字体，保证可读性 */
+            font-size: clamp(2rem, 8vw, 3rem);
             font-weight: 800; 
             color: var(--text);
             margin-bottom: 15px; 
-            letter-spacing: normal;              /* 确保字母间距正常 */
+            letter-spacing: normal;
             line-height: 1.3;
-            overflow-x: auto;                     /* 长单词可横向滚动 */
-            white-space: normal;                   /* 短语正常换行 */
-            max-width: 100%;                       /* 防止溢出父容器 */
-            -webkit-overflow-scrolling: touch;     /* 流畅滚动 */
+            overflow-x: auto;
+            white-space: normal;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch;
         }
         
-        /* 释义区域：默认隐藏，带有淡入缩放动画 */
         .def-main { 
             display: block;
             width: 100%;
-            font-size: clamp(1.8rem, 7vw, 2.5rem); /* 增大最小字体 */
+            font-size: clamp(1.8rem, 7vw, 2.5rem);
             color: var(--primary);
             font-weight: 600;
             border-top: none;              
@@ -269,16 +259,15 @@
             line-height: 1.4;
             letter-spacing: normal;
             word-break: normal;
-            overflow-x: auto;                        /* 长释义可横向滚动 */
+            overflow-x: auto;
             white-space: normal;
             max-width: 100%;
             -webkit-overflow-scrolling: touch;
             
-            /* 动画相关：初始隐藏 */
             max-height: 0;
             opacity: 0;
             transform: scale(0.9);
-            overflow: hidden;                /* 动画时隐藏溢出，避免滚动条干扰 */
+            overflow: hidden;
             transition: max-height 0.3s ease, opacity 0.2s ease, transform 0.2s ease, padding 0.2s ease, margin 0.2s ease, border 0.2s ease;
         }
         .def-main.show {
@@ -288,7 +277,7 @@
             border-top: 2px dashed var(--border-light);
             padding-top: 25px;
             margin-top: 20px;
-            overflow-x: auto;                /* 显示后恢复滚动 */
+            overflow-x: auto;
         }
         
         .btn-reveal { 
@@ -303,7 +292,6 @@
             flex-shrink: 0;                
         }
         
-        /* 操作按钮区域：flex换行布局，固定在底部 */
         .action-grid { 
             display: none; 
             flex-wrap: wrap;
@@ -329,7 +317,6 @@
         .btn-ignore-study { background: var(--ignore); }
         .btn-ignore-study:hover { background: #64748b; }
 
-        /* 管理页 */
         #manage-view { 
             display: none; 
             overflow-y: auto; 
@@ -396,7 +383,6 @@
         .btn-ignore:hover { background: #64748b; }
         .btn-recover { background: var(--primary); color: white; }
 
-        /* 文件上传双按钮 */
         .file-actions { display: flex; gap: 8px; margin-top: 8px; }
         .file-actions button { 
             flex: 1; 
@@ -413,7 +399,6 @@
         .toggle-ignored { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .toggle-ignored label { font-size: 0.9rem; color: var(--header-text); }
 
-        /* 管理页中的返回首页按钮和备份按钮 */
         .back-home-btn {
             background: var(--manage-btn-bg);
             color: var(--manage-btn-text);
@@ -426,7 +411,6 @@
             background: var(--manage-btn-hover);
         }
 
-        /* 备份按钮（复制、下载）样式优化 */
         .backup-btn {
             background: var(--manage-btn-bg);
             color: var(--manage-btn-text);
@@ -549,15 +533,13 @@
 </div>
 
 <script>
-    // --- 数据层 (增加 ignored 字段) ---
+    // --- 数据层 ---
     let db = JSON.parse(localStorage.getItem('vocab_helper_db') || localStorage.getItem('vocab_v11') || '[]');
     
-    // 迁移旧数据：确保每个单词有 reviewCount、ignored，并根据score设置status
     db.forEach(w => {
         if (w.reviewCount === undefined) w.reviewCount = 0;
         if (w.ignored === undefined) w.ignored = false;
         if (w.score === undefined) w.score = 0;
-        // 根据 score 修正 status
         if (w.score === 0) w.status = 'new';
         else if (w.score >= 100) w.status = 'mastered';
         else w.status = 'learning';
@@ -565,9 +547,9 @@
 
     let config = JSON.parse(localStorage.getItem('vocab_cfg')) || { batch: 10 };
     
-    let queue = [];      // 当前学习队列
+    let queue = [];
     let current = null;
-    let showIgnored = false;  // 管理界面是否显示已斩单词
+    let showIgnored = false;
 
     document.getElementById('batch-set').value = config.batch;
     updateUI();
@@ -582,7 +564,6 @@
         localStorage.setItem('vocab_theme', isDark ? 'dark' : 'light');
     }
 
-    // 初始化主题
     (function initTheme() {
         const savedTheme = localStorage.getItem('vocab_theme');
         const body = document.body;
@@ -595,7 +576,6 @@
         }
     })();
 
-    // --- 工具函数 ---
     function shuffleArray(arr) {
         for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -610,7 +590,6 @@
     }
 
     function saveDB() {
-        // 保存前确保 status 与 score 一致
         db.forEach(w => {
             if (w.score === 0) w.status = 'new';
             else if (w.score >= 100) w.status = 'mastered';
@@ -621,7 +600,6 @@
     }
 
     function updateUI() {
-        // 统计时排除 ignored 的单词
         const activeWords = db.filter(w => !w.ignored);
         const newCount = activeWords.filter(x => x.score === 0).length;
         const learningCount = activeWords.filter(x => x.score > 0 && x.score < 100).length;
@@ -632,21 +610,18 @@
         document.getElementById('total-count').innerText = activeWords.length;
     }
 
-    // --- 学习核心 (过滤 ignored) ---
     function startSession(mode) {
         const limit = config.batch;
 
         if (mode === 'new') {
             let list = db.filter(x => !x.ignored && x.score === 0 && x.status === 'new').slice(0, limit);
             if(list.length === 0) return alert("暂无新词 (熟练度0的单词)，请先添加。");
-            queue = list.slice(); // 引用
+            queue = list.slice();
         } 
         else if (mode === 'review') {
-            // 复习池：所有未被忽略且熟练度 >0 的单词（学习中+完全掌握）
             let candidates = db.filter(x => !x.ignored && x.score > 0);
             if(candidates.length === 0) return alert("没有需要复习的单词！");
 
-            // 排序：先按熟练度是否已满 (未满优先)，再按复习次数升序，再按熟练度升序
             candidates.sort((a, b) => {
                 if (a.score >= 100 && b.score < 100) return 1;
                 if (a.score < 100 && b.score >= 100) return -1;
@@ -655,14 +630,9 @@
             });
 
             let selected = candidates.slice(0, limit);
-            
-            // 复习前将熟练度减20（模拟遗忘）
-            selected.forEach(w => {
-                w.score = Math.max(0, w.score - 20);
-            });
-            saveDB(); // 立即保存分数调整
+            selected.forEach(w => { w.score = Math.max(0, w.score - 20); });
+            saveDB();
 
-            // 再次按相同规则排序
             selected.sort((a, b) => {
                 if (a.score >= 100 && b.score < 100) return 1;
                 if (a.score < 100 && b.score >= 100) return -1;
@@ -687,8 +657,7 @@
         current = queue[0];
         document.getElementById('q-count').innerText = queue.length;
         document.getElementById('w-text').innerText = current.word;
-        // 不设置释义内容，避免切换时闪现
-        document.getElementById('d-text').innerText = ''; // 清空释义内容，确保不会显示旧内容
+        document.getElementById('d-text').innerText = '';
         document.getElementById('score-val').innerText = current.score;
         
         const bar = document.getElementById('bar');
@@ -697,22 +666,24 @@
         else if(current.score < 90) bar.style.background = '#f59e0b';
         else bar.style.background = '#10b981';
 
-        // 隐藏释义区域（移除show类）
         document.getElementById('d-text').classList.remove('show');
         document.getElementById('reveal-btn').style.display = 'block';
         document.getElementById('ctrl-btns').style.display = 'none';
     }
 
     function showDef() {
-        // 先设置当前单词的释义，再显示
         document.getElementById('d-text').innerText = current.def;
         document.getElementById('d-text').classList.add('show');
         document.getElementById('reveal-btn').style.display = 'none';
         document.getElementById('ctrl-btns').style.display = 'flex';
     }
 
+    // 修改点：当 val 为 -30（忘了）时，不增加 reviewCount，其他情况增加
     function rate(val) {
-        current.reviewCount = (current.reviewCount || 0) + 1;
+        // 只有不是“忘了”时才增加复习次数
+        if (val !== -30) {
+            current.reviewCount = (current.reviewCount || 0) + 1;
+        }
         current.score = Math.min(100, Math.max(0, current.score + val));
 
         if (current.score === 0) current.status = 'new';
@@ -744,15 +715,14 @@
         nextCard();
     }
 
-    // --- 学习中直接斩掉当前单词 ---
     function ignoreCurrent() {
         if (!current) return;
         if (!confirm(`确定要斩掉单词“${current.word}”吗？之后将不再出现。`)) return;
         
-        current.ignored = true;  // 标记忽略
-        queue.shift();           // 从队列移除
+        current.ignored = true;
+        queue.shift();
         saveDB();
-        nextCard();              // 继续下一个
+        nextCard();
     }
 
     function confirmExit() {
@@ -771,13 +741,11 @@
         if(viewId === 'manage') renderList();
     }
 
-    // --- 显示/隐藏已斩单词 ---
     function toggleShowIgnored() {
         showIgnored = document.getElementById('showIgnored').checked;
         renderList();
     }
 
-    // --- 斩掉 / 恢复单词 (管理界面) ---
     function ignoreWord(index) {
         db[index].ignored = true;
         saveDB();
@@ -790,7 +758,6 @@
         renderList();
     }
 
-    // --- 备份与恢复 (增加 ignored 字段) ---
     function copyToClipboard() {
         const dataStr = JSON.stringify(db, null, 2);
         const textArea = document.createElement("textarea");
@@ -847,7 +814,7 @@
                             renderList();
                             alert("✅ 覆盖导入成功！");
                         }
-                    } else { // append
+                    } else {
                         let added = 0;
                         json.forEach(item => {
                             if (item.word && item.def !== undefined) {
@@ -904,7 +871,7 @@
                     renderList();
                     alert("✅ 覆盖粘贴成功！");
                 }
-            } else { // append
+            } else {
                 let added = 0;
                 json.forEach(item => {
                     if (item.word && item.def !== undefined) {
@@ -936,7 +903,6 @@
         }
     }
 
-    // --- 批量加词 (增加 ignored: false) ---
     function addWords() {
         const txt = document.getElementById('add-area').value;
         const lines = txt.split('\n');
@@ -958,7 +924,6 @@
         alert(count > 0 ? `成功添加 ${count} 个新词！` : "请检查格式 (每行 单词:释义)");
     }
 
-    // --- 词库列表渲染 (根据 showIgnored 过滤) ---
     function renderList() {
         const box = document.getElementById('list-box');
         box.innerHTML = '';
@@ -966,7 +931,7 @@
         let wordsToShow = showIgnored ? db : db.filter(w => !w.ignored);
         
         wordsToShow.forEach((item) => {
-            const originalIndex = db.findIndex(w => w.word === item.word); // 用word作为唯一标识
+            const originalIndex = db.findIndex(w => w.word === item.word);
 
             let tag = '', btn = '';
             if (item.ignored) {
@@ -1029,7 +994,6 @@
         }
     }
 
-    // 初始化渲染列表
     renderList();
 </script>
 
