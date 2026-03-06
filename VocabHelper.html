@@ -39,6 +39,10 @@
             --btn-sm-red-text: #333;
             --btn-sm-red-hover-bg: #ef4444;
             --btn-sm-red-hover-text: white;
+            /* 管理页按钮浅色 */
+            --manage-btn-bg: #e2e8f0;
+            --manage-btn-text: #334155;
+            --manage-btn-hover: #cbd5e1;
         }
 
         /* 暗色主题变量 - 提升对比度 */
@@ -53,16 +57,16 @@
             --flashcard-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
             --btn-main-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
             --btn-review-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.4);
-            --btn-reveal-bg: #0f172a;
-            --btn-reveal-text: #f1f5f9;
+            --btn-reveal-bg: #2d3a4f;          /* 提升与背景的对比度 */
+            --btn-reveal-text: #ffffff;
             --progress-bg: #1e293b;
             
             /* 提升主色对比度（用于释义、进度条、统计数字等） */
-            --primary: #818cf8;          /* 更亮的紫色/蓝色 */
-            --success: #34d399;           /* 亮绿 */
-            --warning: #fbbf24;            /* 亮橙黄 */
-            --danger: #f87171;             /* 亮红 */
-            --ignore: #9ca3af;             /* 亮灰 */
+            --primary: #a78bfa;                /* 更亮的淡紫色 */
+            --success: #4ade80;                 /* 亮绿 */
+            --warning: #fcd34d;                  /* 亮黄 */
+            --danger: #fca5a5;                   /* 亮红 */
+            --ignore: #9ca3af;                   /* 亮灰 */
             
             /* 标签背景色加深，文字提亮 */
             --tag-master-bg: #14532d;
@@ -81,6 +85,11 @@
             --btn-sm-red-text: #f1f5f9;
             --btn-sm-red-hover-bg: #ef4444;
             --btn-sm-red-hover-text: white;
+            
+            /* 管理页按钮暗色 */
+            --manage-btn-bg: #4b5565;
+            --manage-btn-text: #f1f5f9;
+            --manage-btn-hover: #6b7280;
         }
 
         html, body { 
@@ -391,8 +400,8 @@
         .file-actions { display: flex; gap: 8px; margin-top: 8px; }
         .file-actions button { 
             flex: 1; 
-            background: var(--border-lighter); 
-            color: var(--text); 
+            background: var(--manage-btn-bg); 
+            color: var(--manage-btn-text); 
             padding: 10px; 
             border-radius: 8px; 
             font-weight: 600; 
@@ -403,6 +412,30 @@
 
         .toggle-ignored { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .toggle-ignored label { font-size: 0.9rem; color: var(--header-text); }
+
+        /* 管理页中的返回首页按钮和备份按钮 */
+        .back-home-btn {
+            background: var(--manage-btn-bg);
+            color: var(--manage-btn-text);
+            border: 1px solid var(--border-light);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .back-home-btn:hover {
+            background: var(--manage-btn-hover);
+        }
+
+        /* 备份按钮（复制、下载）样式优化 */
+        .backup-btn {
+            background: var(--manage-btn-bg);
+            color: var(--manage-btn-text);
+            border: 1px solid var(--border-light);
+        }
+        .backup-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -471,13 +504,13 @@
 </div>
 
 <div id="manage-view">
-    <button onclick="nav('home')" style="margin-bottom:15px; background:var(--border-lighter); color:var(--text); padding:10px 15px; border-radius:10px;">← 返回首页</button>
+    <button onclick="nav('home')" class="back-home-btn">← 返回首页</button>
     
     <div class="panel">
         <h3>💾 数据备份与恢复</h3>
         <div style="display:flex; gap:10px; margin-bottom:12px;">
-            <button onclick="copyToClipboard()" style="flex:1; background:#1e293b; color:white; padding:12px; border-radius:10px;">📋 复制到剪贴板</button>
-            <button onclick="exportJSON()" style="flex:1; background:#475569; color:white; padding:12px; border-radius:10px;">⬇️ 下载文件</button>
+            <button onclick="copyToClipboard()" class="backup-btn" style="flex:1; padding:12px; border-radius:10px;">📋 复制到剪贴板</button>
+            <button onclick="exportJSON()" class="backup-btn" style="flex:1; padding:12px; border-radius:10px;">⬇️ 下载文件</button>
         </div>
         
         <div style="margin-bottom:8px; font-size:0.9rem; color:var(--text);">从文件导入：</div>
@@ -491,8 +524,8 @@
             <summary>备用：粘贴代码导入</summary>
             <textarea id="paste-area" style="margin-top:8px; height:60px; font-size:0.8rem;" placeholder='{"word":"test"}...'></textarea>
             <div style="display:flex; gap:8px; margin-top:5px;">
-                <button onclick="importFromText('overwrite')" style="flex:1; background:#94a3b8; color:white; padding:8px; border-radius:8px;">覆盖粘贴</button>
-                <button onclick="importFromText('append')" style="flex:1; background:#6366f1; color:white; padding:8px; border-radius:8px;">追加粘贴</button>
+                <button onclick="importFromText('overwrite')" class="backup-btn" style="flex:1; background:#94a3b8; color:white; padding:8px; border-radius:8px;">覆盖粘贴</button>
+                <button onclick="importFromText('append')" class="backup-btn" style="flex:1; background:#6366f1; color:white; padding:8px; border-radius:8px;">追加粘贴</button>
             </div>
         </details>
     </div>
